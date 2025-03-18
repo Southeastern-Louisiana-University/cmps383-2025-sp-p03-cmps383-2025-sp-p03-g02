@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, View, Text, Alert } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, View, Alert, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 
 type Ticket = {
@@ -11,12 +11,12 @@ type Ticket = {
   seats: string;
 };
 
-//Sample Ticket Data
+// Sample Ticket Data
 const TICKETS: Ticket[] = [
   { 
     id: 't1', 
     movieTitle: 'The Dark Knight', 
-    theater: "Lion's Den Uptown", 
+    theater: "Lion's Den Baton Rouge", 
     date: 'March 15, 2025', 
     time: '7:30 PM',
     seats: 'G7, G8'
@@ -24,11 +24,19 @@ const TICKETS: Ticket[] = [
   { 
     id: 't2', 
     movieTitle: 'Inception', 
-    theater: "Lion's Den Downtown", 
+    theater: "Lion's Den Hammond", 
     date: 'March 22, 2025', 
     time: '8:00 PM',
     seats: 'D5'
   },
+  { 
+    id: 't3', 
+    movieTitle: 'Dune: Part Two', 
+    theater: "Lion's Den Mandeville", 
+    date: 'April 5, 2025', 
+    time: '6:45 PM',
+    seats: 'J12, J13, J14'
+  }
 ];
 
 export default function TicketsScreen() {
@@ -44,49 +52,70 @@ export default function TicketsScreen() {
     );
   };
 
+  const handleOpenScanner = () => {
+    try {
+      router.push("../scanner/");
+    } catch (error) {
+      console.error("Navigation error:", error);
+      Alert.alert("Navigation Error", "Could not open scanner. Please try again.");
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>My Tickets</Text>
+      {}
+      <View style={styles.fixedHeader}>
+        <Text style={styles.pageTitle}>My Tickets</Text>
+        <TouchableOpacity 
+          style={styles.scanButton}
+          onPress={handleOpenScanner}
+        >
+          <Text style={styles.scanButtonText}>⚃ Scan</Text>
+        </TouchableOpacity>
+      </View>
       
-      {TICKETS.length > 0 ? (
-        <FlatList
-          data={TICKETS}
-          keyExtractor={(item) => item.id}
-          style={styles.list}
-          renderItem={({ item }) => (
+      {}
+      <View style={styles.content}>
+        {TICKETS.length > 0 ? (
+          <FlatList
+            data={TICKETS}
+            keyExtractor={(item) => item.id}
+            style={styles.list}
+            renderItem={({ item }) => (
+              <TouchableOpacity 
+                style={styles.ticketItem}
+                onPress={() => handleViewTicket(item)}
+              >
+                <Text style={styles.movieTitle}>{item.movieTitle}</Text>
+                <Text style={styles.ticketDetails}>{item.theater}</Text>
+                <Text style={styles.ticketDetails}>{item.date} • {item.time}</Text>
+                <View style={styles.seatsContainer}>
+                  <Text style={styles.seatsLabel}>Seats:</Text>
+                  <Text style={styles.seats}>{item.seats}</Text>
+                </View>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity 
+                    style={styles.button}
+                    onPress={() => handleViewTicket(item)}
+                  >
+                    <Text style={styles.buttonText}>View Ticket</Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>You don't have any tickets yet.</Text>
             <TouchableOpacity 
-              style={styles.ticketItem}
-              onPress={() => handleViewTicket(item)}
+              style={styles.browseButton}
+              onPress={() => router.push('/movies')}
             >
-              <Text style={styles.movieTitle}>{item.movieTitle}</Text>
-              <Text style={styles.ticketDetails}>{item.theater}</Text>
-              <Text style={styles.ticketDetails}>{item.date} • {item.time}</Text>
-              <View style={styles.seatsContainer}>
-                <Text style={styles.seatsLabel}>Seats:</Text>
-                <Text style={styles.seats}>{item.seats}</Text>
-              </View>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity 
-                  style={styles.button}
-                  onPress={() => handleViewTicket(item)}
-                >
-                  <Text style={styles.buttonText}>View Ticket</Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.buttonText}>Browse Movies</Text>
             </TouchableOpacity>
-          )}
-        />
-      ) : (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>You don't have any tickets yet.</Text>
-          <TouchableOpacity 
-            style={styles.browseButton}
-            onPress={() => router.push('/movies')}
-          >
-            <Text style={styles.buttonText}>Browse Movies</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -94,15 +123,39 @@ export default function TicketsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#152F3E',
   },
+  fixedHeader: {
+    position: 'absolute',
+    top: 70, 
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    zIndex: 10,
+  },
   pageTitle: {
-    fontSize: 28,
+    fontSize: 34,
     fontWeight: 'bold',
-    marginBottom: 16,
-    marginTop: 40,
     color: '#E8EEF2',
+  },
+  scanButton: {
+    backgroundColor: '#0C6184',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  scanButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  content: {
+    flex: 1,
+    paddingTop: 140, 
+    paddingHorizontal: 16,
   },
   list: {
     width: '100%',
@@ -156,7 +209,7 @@ const styles = StyleSheet.create({
     width: 120,
   },
   buttonText: {
-    color: '#E8EEF2',
+    color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16,
   },
