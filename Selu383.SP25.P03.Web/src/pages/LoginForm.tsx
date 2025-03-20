@@ -63,6 +63,19 @@ export function LoginForm({ onLoginSuccess, onSwitchToSignUp }: LoginFormProps) 
     setFormError("");
     setLoading(true);
     
+    // Hardcoded test user for frontend testing
+  if (username === "test" && password === "test") {
+    setTimeout(() => {
+      const testUser: UserDto = {
+        id: "1",
+        username: "test",
+        email: "test@example.com",
+      };
+      onLoginSuccess(testUser);
+      setLoading(false);
+    }, ); 
+    return;
+  }
     fetch("/api/authentication/login", {
       method: "POST",
       body: JSON.stringify({ username, password }),
