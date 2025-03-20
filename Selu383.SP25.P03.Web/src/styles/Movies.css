@@ -75,6 +75,25 @@ cssCopy.movies-container {
     background-color: #2c5282;
 }
 
+.description-btn{
+    display: inline-block;
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #3182ce;
+    color:white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    gap: 15px;
+    transition: background-color .3s ease;
+}
+
+.description-btn:hover{
+    background-color: #2c5282;
+}
+
 /* Added for more website-like appearance */
 .movie-image {
     width: 100%;
