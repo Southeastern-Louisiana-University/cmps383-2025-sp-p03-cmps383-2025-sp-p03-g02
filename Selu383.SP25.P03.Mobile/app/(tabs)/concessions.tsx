@@ -130,6 +130,41 @@ export default function ConcessionsScreen() {
     );
   };
 
+  const handleViewOrder = () => {
+    // Create a formatted list of items in the cart
+    const cartItemsList = Array.from(cartItems.entries()).map(([itemId, quantity]) => {
+      const item = CONCESSIONS.find(c => c.id === itemId);
+      return item ? `${quantity}x ${item.name} (${item.price})` : '';
+    }).join('\n');
+    
+    // Calculate total price 
+    const totalPrice = Array.from(cartItems.entries()).reduce((sum, [itemId, quantity]) => {
+      const item = CONCESSIONS.find(c => c.id === itemId);
+      if (item) {
+    
+        const price = parseFloat(item.price.replace('$', ''));
+        return sum + (price * quantity);
+      }
+      return sum;
+    }, 0).toFixed(2);
+    
+    Alert.alert(
+      "Your Order",
+      `${cartItemsList}\n\nTotal: $${totalPrice}`,
+      [
+        { text: "Continue Shopping", style: "cancel" },
+        { 
+          text: "Checkout", 
+          onPress: () => {
+            Alert.alert("Order Confirmed", "Your items will be delivered to your seat shortly!");
+            // Clear the cart after checkout
+            setCartItems(new Map());
+          } 
+        }
+      ]
+    );
+  };
+
   const renderCategoryButton = (category: string, label: string, icon: SFSymbol) => (
     <TouchableOpacity 
       style={[
@@ -205,12 +240,17 @@ export default function ConcessionsScreen() {
         />
         
         {totalCartItems > 0 && (
-          <TouchableOpacity style={styles.checkoutButton}>
-            <View style={styles.cartBadge}>
-              <Text style={styles.cartBadgeText}>{totalCartItems}</Text>
-            </View>
-            <Text style={styles.checkoutText}>View Order</Text>
-          </TouchableOpacity>
+          <View style={styles.bottomButtonContainer}>
+            <TouchableOpacity 
+              style={styles.checkoutButton}
+              onPress={handleViewOrder}
+            >
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{totalCartItems}</Text>
+              </View>
+              <Text style={styles.checkoutText}>View Order</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </SafeAreaView>
@@ -271,10 +311,9 @@ const styles = StyleSheet.create({
   },
   list: {
     width: '100%',
-    marginBottom: 70,
   },
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: 120, 
   },
   concessionItem: {
     backgroundColor: '#F0F4F8',
@@ -354,17 +393,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 6,
   },
-  checkoutButton: {
+  bottomButtonContainer: {
     position: 'absolute',
-    bottom: 20,
-    left: 16,
-    right: 16,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 16,
+    paddingBottom: 90, 
+    paddingTop: 10,
+    backgroundColor: '#152F3E', 
+  },
+  checkoutButton: {
     backgroundColor: '#0C6184',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+    width: '100%',
   },
   checkoutText: {
     color: '#FFFFFF',
