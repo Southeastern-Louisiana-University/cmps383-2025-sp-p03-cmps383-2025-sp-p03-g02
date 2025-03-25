@@ -57,7 +57,7 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem.Controllers
             };
         }
 
-        // POST: api/Features/FoodItem
+        // POST: api/FoodItem
         [HttpPost]
         public async Task<ActionResult<FoodItemDto>> PostFoodItem(FoodItemDto foodItemDto)
         {

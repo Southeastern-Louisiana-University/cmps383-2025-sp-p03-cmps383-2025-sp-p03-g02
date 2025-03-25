@@ -57,10 +57,10 @@ export function AddFoodItemForm() {
         .catch(() => setFormError("Failed to add food item"))
         .finally(() => setLoading(false));
 
-        
+
     } else if (operation === "edit" && selectedFoodItem?.id) {
       // Update food item
-      fetch(`api/fooditem${selectedFoodItem.id}`, {
+      fetch(`api/fooditem/${selectedFoodItem.id}`, {
         method: "PUT",
         body: JSON.stringify({ ...foodItem, id: selectedFoodItem.id }),
         headers: { "Content-Type": "application/json" },
@@ -80,7 +80,7 @@ export function AddFoodItemForm() {
   };
 
   const handleDelete = (id: number) => {
-    fetch(`api/fooditem${id}`, {
+    fetch(`api/fooditem/${id}`, {
       method: "DELETE",
     })
       .then(() => {
