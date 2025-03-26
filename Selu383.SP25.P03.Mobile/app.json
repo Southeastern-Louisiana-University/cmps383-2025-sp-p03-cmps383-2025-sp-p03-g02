@@ -8,6 +8,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "owner": "hjohn0360",
     "ios": {
       "supportsTablet": true
     },
@@ -43,7 +44,9 @@
       "router": {
         "origin": false
       },
-      "eas": {}
+      "eas": {
+        "projectId": "c55d2a26-1fcf-4a8b-a891-4eff59ce74f8"
+      }
     }
   }
 }
