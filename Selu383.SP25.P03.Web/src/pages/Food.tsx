@@ -14,19 +14,17 @@ const Food = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5249/api/fooditem")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch food items");
-        }
-        return response.json();
-      })
-      .then((data: FoodItemDto[]) => setFoodItems(data))
-      .catch((err) => {
-        console.error(err);
-        setError("Failed to load food items.");
-      });
-  }, []);
+      fetchFoodItems();
+    }, []);
+  
+    const fetchFoodItems = () => {
+      fetch("api/fooditem")
+        .then((response) => response.json())
+        .then((data: FoodItemDto[]) => setFoodItems(data))
+        .catch(() => {
+          setError("Failed to fetch food items.");
+        });
+    };
 
   return (
     <div className="food-container">
