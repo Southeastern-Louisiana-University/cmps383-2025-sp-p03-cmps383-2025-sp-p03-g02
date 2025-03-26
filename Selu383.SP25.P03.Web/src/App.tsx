@@ -1,29 +1,38 @@
-//import { useState } from 'react'
-import './App.css'
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Movies from "./pages/Movies.tsx";
-import Theaters from "./pages/Theaters.tsx";
-import Tickets from "./pages/Tickets.tsx";
-import Food from "./pages/Food.tsx";
-import Account from "./pages/Account.tsx";
-import Navbar from "./components/Navbar.tsx";
+import { useState } from "react";
+import { LoginForm } from "./pages/LoginForm";
+import { SignUpForm } from "./pages/SignUpForm";
+import { UserDto } from "./models/UserDto";
+import { BrowserRouter as Router } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import AppRoutes from "./AppRoutes";
+import "./App.css"
 
 function App() {
-    return (
+  const [currentUser, setCurrentUser] = useState<UserDto | undefined>(undefined);
+  const [showSignUp, setShowSignUp] = useState(false); 
+
+  return (
+    <>
+      {!currentUser ? (
+        showSignUp ? (
+          <SignUpForm
+            onSignUpSuccess={(user) => setCurrentUser(user)}
+            onSwitchToLogin={() => setShowSignUp(false)} 
+          />
+        ) : (
+          <LoginForm
+            onLoginSuccess={(user) => setCurrentUser(user)}
+            onSwitchToSignUp={() => setShowSignUp(true)} 
+          />
+        )
+      ) : (
         <Router>
-            <Navbar />
-            <Routes>
-                <Route path="/" element={<Movies />} />
-                <Route path="/theaters" element={<Theaters />} />
-                <Route path="/tickets" element={<Tickets />} />
-                <Route path="/food" element={<Food />} />
-                <Route path="/account" element={<Account />} />
-            </Routes>
+          <Navbar />
+          <AppRoutes />
         </Router>
-    );
+      )}
+    </>
+  );
 }
 
 export default App;
-
-
-
