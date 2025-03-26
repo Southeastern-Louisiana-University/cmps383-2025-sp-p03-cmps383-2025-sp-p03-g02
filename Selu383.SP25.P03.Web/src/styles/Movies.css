@@ -1,62 +1,129 @@
-.movies-container {
-    max-width: 1800px; 
+
+cssCopy.movies-container {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    text-align: center;
-    background-color: transparent; 
+    padding: 40px 20px;
+    background-color: #f5f7fa;
 }
 
 .movies-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #c5cbd4;
 }
-
 
 .movies-list {
-    display: flex;
-    flex-direction: column; 
-    gap: 15px;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 25px;
 }
-
 
 .movie-item {
     background-color: white;
-    padding: 15px;
-    width: 100%;
-    max-width: 450px; 
-    border-radius: 12px;
-    text-align: left;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
 .movie-item h2 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: black;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #1a202c;
+}
+
+.movie-content {
+    padding: 20px;
 }
 
 .movie-time {
     font-size: 14px;
-    color: #374151;
-    margin-bottom: 10px;
+    color: #4a5568;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.movie-time:before {
+    content: "⏰";
+    margin-right: 5px;
 }
 
 .buy-tickets-btn {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    background-color: #407599;
+    display: inline-block;
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #3182ce;
     color: white;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.3s ease-in-out;
+    transition: background-color 0.3s ease;
 }
 
 .buy-tickets-btn:hover {
-    background-color: #1d4ed8;
+    background-color: #2c5282;
+}
+
+.description-btn{
+    display: inline-block;
+    width: auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #3182ce;
+    color:white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    gap: 15px;
+    transition: background-color .3s ease;
+}
+
+.description-btn:hover{
+    background-color: #2c5282;
+}
+
+
+.message-popup {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  
+.movie-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .movies-list {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .movies-list {
+        grid-template-columns: 1fr;
+    }
 }
