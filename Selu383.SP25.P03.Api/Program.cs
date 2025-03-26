@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Selu383.SP25.P03.Api.Data;
@@ -17,17 +16,30 @@ namespace Selu383.SP25.P03.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DataContext") ?? throw new InvalidOperationException("Connection string 'DataContext' not found.")));
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            
+            // Configure CORS to allow requests from the React frontend
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173") // Allow React frontend
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
+            // Add OpenAPI and Razor Pages
             builder.Services.AddOpenApi();
             builder.Services.AddRazorPages();
 
+            // Configure Identity for user and role management
             builder.Services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<DataContext>()
                 .AddDefaultTokenProviders();
 
+            // Configure Identity options
             builder.Services.Configure<IdentityOptions>(options =>
             {
-                // Password settings.
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = true;
@@ -35,20 +47,17 @@ namespace Selu383.SP25.P03.Api
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
 
-                // Lockout settings.
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
-                // User settings.
-                options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
             });
 
+            // Configure application cookie settings
             builder.Services.ConfigureApplicationCookie(options =>
             {
-                // Cookie settings
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                 options.Events.OnRedirectToLogin = context =>
@@ -56,18 +65,17 @@ namespace Selu383.SP25.P03.Api
                     context.Response.StatusCode = 401;
                     return Task.CompletedTask;
                 };
-
                 options.Events.OnRedirectToAccessDenied = context =>
                 {
                     context.Response.StatusCode = 403;
                     return Task.CompletedTask;
                 };
-
                 options.SlidingExpiration = true;
             });
 
             var app = builder.Build();
 
+            // Apply migrations and seed data
             using (var scope = app.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<DataContext>();
@@ -77,22 +85,26 @@ namespace Selu383.SP25.P03.Api
                 await SeedUsers.Initialize(scope.ServiceProvider);
             }
 
-            // Configure the HTTP request pipeline.
+            // Configure the HTTP request pipeline
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+                app.MapOpenApi(); // OpenAPI for development
             }
 
             app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseRouting()
-               .UseAuthorization()
-               .UseEndpoints(x =>
-               {
-                   x.MapControllers();
-               });
             app.UseStaticFiles();
+            app.UseRouting();
 
+            // Apply CORS policy before authentication
+            app.UseCors(); // CORS should be applied before authentication middleware
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            // Map controllers
+            app.UseEndpoints(x => x.MapControllers());
+
+            // SPA development configuration
             if (app.Environment.IsDevelopment())
             {
                 app.UseSpa(x =>

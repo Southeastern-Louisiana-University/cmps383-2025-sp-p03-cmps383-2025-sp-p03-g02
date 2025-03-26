@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Selu383.SP25.P03.Api.Features.Users;
 using Selu383.SP25.P03.Api.Features.Theaters;
+using Selu383.SP25.P03.Api.Features.FoodItem;
 
 namespace Selu383.SP25.P03.Api.Data
 {
@@ -13,10 +14,15 @@ namespace Selu383.SP25.P03.Api.Data
         }
 
         public DbSet<Theater> Theaters { get; set; }
+        public DbSet<FoodItem> FoodItem { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+             builder.Entity<FoodItem>()
+                .Property(f => f.Price)
+                .HasColumnType("decimal(18,2)"); 
 
             builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
 
