@@ -1,53 +1,61 @@
 import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, View, Text, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-// Mock user data
 const USER = {
   name: 'John Doe',
   email: 'john.doe@yahoo.com'
 };
 
 export default function AccountScreen() {
+  const navigation = useNavigation();
+
   const handleSignOut = () => {
     Alert.alert("Sign Out", "You have been signed out.");
   };
 
   const handleMenuOption = (option: string) => {
-    Alert.alert(option, ` It works `);
+    Alert.alert(option, `It works`);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.pageTitle}>My Account</Text>
-      
-      {/* Basic Profile Info */}
+
       <View style={styles.profileCard}>
         <Text style={styles.userName}>{USER.name}</Text>
         <Text style={styles.userEmail}>{USER.email}</Text>
       </View>
-      
-      {/* Simple Menu */}
+
       <TouchableOpacity 
         style={styles.menuItem}
         onPress={() => handleMenuOption('Edit Profile')}
       >
         <Text style={styles.menuText}>Edit Profile</Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity 
         style={styles.menuItem}
         onPress={() => handleMenuOption('Payment Methods')}
       >
         <Text style={styles.menuText}>Payment Methods</Text>
       </TouchableOpacity>
-      
+
       <TouchableOpacity 
         style={styles.menuItem}
         onPress={() => handleMenuOption('Help Center')}
       >
         <Text style={styles.menuText}>Help Center</Text>
       </TouchableOpacity>
-      
+
+      {/* Management Button (Navigates to EditTablesPage) */}
+      <TouchableOpacity 
+        style={styles.managementButton}
+        onPress={() => navigation.navigate('EditTablesPage')}
+      >
+        <Text style={styles.managementText}>Management</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity 
         style={styles.signOutButton}
         onPress={handleSignOut}
@@ -101,6 +109,18 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     color: '#1F3A4D',
+  },
+  managementButton: {
+    backgroundColor: '#3498DB',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  managementText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   signOutButton: {
     backgroundColor: '#E74C3C',
