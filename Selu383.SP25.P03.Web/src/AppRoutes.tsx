@@ -16,7 +16,7 @@ const AppRoutes = () => {
             <Route path="/food" element={<Food />} />
             <Route path="/account" element={<Account />} />
             <Route path="/management" element={<Management />} /> {/* Added Management route */}
-            <Route path="/editmenu" element={<AddFoodItemForm onAddFoodSuccess={() => {}} />} /> {/* Add route for the form */}
+            <Route path="/editmenu" element={<AddFoodItemForm /> } />
         </Routes>
     );
 };
