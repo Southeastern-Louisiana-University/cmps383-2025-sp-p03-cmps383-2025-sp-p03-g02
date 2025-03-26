@@ -5,8 +5,9 @@ import Theaters from "./pages/Theaters.tsx";
 import Tickets from "./pages/Tickets.tsx";
 import Food from "./pages/Food.tsx";
 import Account from "./pages/Account.tsx";
+import Management from "./pages/Management.tsx"; // Import Management page
 import Navbar from "./components/Navbar.tsx";
-import { AddFoodItemForm } from './pages/TestFoodMenu.tsx'; // Import the form
+import { AddFoodItemForm } from './pages/EditFoodMenu.tsx';
 
 function App() {
     return (
@@ -18,14 +19,11 @@ function App() {
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/food" element={<Food />} />
                 <Route path="/account" element={<Account />} />
-                <Route path="/testmenu" element={<AddFoodItemForm onAddFoodSuccess={() => {}} />} /> {/* Add route for the form */}
+                <Route path="/management" element={<Management />} /> {/* Added Management route */}
+                <Route path="/editmenu" element={<AddFoodItemForm onAddFoodSuccess={() => {}} />} /> {/* Add route for the form */}
             </Routes>
         </Router>
     );
 }
 
 export default App;
-
-
-
-

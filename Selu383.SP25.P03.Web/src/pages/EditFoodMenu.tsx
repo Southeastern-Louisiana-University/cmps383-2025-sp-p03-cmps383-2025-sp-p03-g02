@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "../styles/EditFoodMenu.css";
 
 interface FoodItemDto {
   id?: number;
