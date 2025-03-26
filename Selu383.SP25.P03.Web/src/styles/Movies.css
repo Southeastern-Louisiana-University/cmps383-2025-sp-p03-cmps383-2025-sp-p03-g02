@@ -1,129 +1,118 @@
-
-cssCopy.movies-container {
-    max-width: 1200px;
+.movies-container {
+    max-width: 800px;
     margin: 0 auto;
     padding: 40px 20px;
     background-color: #f5f7fa;
+    font-family: 'Arial', sans-serif;
 }
 
 .movies-title {
-    font-size: 32px;
+    font-size: 36px;
     font-weight: 700;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     text-align: center;
-    color: #c5cbd4;
+    color: #1a202c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .movies-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 25px;
+    display: grid; /* Changed to grid */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Makes the grid responsive */
+    gap: 30px;
 }
 
 .movie-item {
     background-color: white;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.movie-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .movie-item h2 {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 15px 0;
     color: #1a202c;
-}
-
-.movie-content {
-    padding: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
 }
 
 .movie-time {
-    font-size: 14px;
+    font-size: 16px;
     color: #4a5568;
     margin-bottom: 15px;
     display: flex;
     align-items: center;
+    gap: 8px;
 }
 
 .movie-time:before {
-    content: "⏰";
-    margin-right: 5px;
+    content: "🕒";
 }
 
-.buy-tickets-btn {
-    display: inline-block;
-    width: auto;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    background-color: #3182ce;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.buy-tickets-btn:hover {
-    background-color: #2c5282;
-}
-
-.description-btn{
-    display: inline-block;
-    width: auto;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    background-color: #3182ce;
-    color:white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.movie-actions {
+    display: flex;
     gap: 15px;
-    transition: background-color .3s ease;
+    margin-top: 20px;
 }
 
-.description-btn:hover{
-    background-color: #2c5282;
-}
-
-
-.message-popup {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #4CAF50;
+.buy-tickets-btn, .description-btn {
+    display: inline-block;
+    padding: 10px 25px;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: #3182ce;
     color: white;
-    padding: 10px 20px;
+    border: none;
     border-radius: 4px;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  
-.movie-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
+
+.buy-tickets-btn:hover, .description-btn:hover {
+    background-color: #2c5282;
+    transform: translateY(-2px);
+}
+
+.movie-divider {
+    height: 1px;
+    background-color: #e2e8f0;
+    margin: 25px 0;
+    border: none;
+}
+
+/* Smaller movie posters */
+.movie-image {
+    width: 120px;
+    height: 120px;
+    object-fit: stretch; /* Stretch the image to fill the container */
+    position: absolute;
+    right: 25px;
+    top: 5px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+
 
 @media (max-width: 768px) {
-    .movies-list {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    .movies-container {
+        padding: 30px 15px;
     }
-}
+    
+    .movie-item {
+        padding: 20px;
+    }
+    
+    .movie-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
 
-@media (max-width: 480px) {
-    .movies-list {
-        grid-template-columns: 1fr;
-    }
 }
