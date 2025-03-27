@@ -46,7 +46,7 @@ const Movies = () => {
   const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
 
   const handleButtonClick = (action: string, title: string) => {
-    setMessage(`${action} for "${title}" - It works!`);
+    setMessage(`${action} for "${title}" `);
     setShowMessage(true);
     
     setTimeout(() => {
