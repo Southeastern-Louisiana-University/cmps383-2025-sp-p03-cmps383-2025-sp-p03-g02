@@ -19,7 +19,7 @@
     text-align: center;
 }
 
-/* Food List */
+
 .food-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -27,12 +27,11 @@
     margin-top: 40px;
 }
 
-/* Food Item Card */
 .food-item {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    height: 280px;
+    height: 200px;
     position: relative;
     padding: 20px;
     margin: 10px;
@@ -70,7 +69,7 @@
 
 .add-to-order-btn {
     margin-top: auto;
-    align-self: center;
+  align-items: center;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -80,6 +79,7 @@
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    
   }
 
 .add-to-order-btn:hover {

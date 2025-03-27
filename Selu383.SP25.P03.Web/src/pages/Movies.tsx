@@ -12,8 +12,9 @@ interface Movie {
 // Sample movie data with image URLs
 const movies: Movie[] = [
   { id: 1, title: "The Dark Knight", time: "7:30 PM", imageUrl: "https://383g02p03theaterlionsden.neocities.org/movie/Dark-Knight-70822-scaled.jpg" },
-  { id: 2, title: "Inception", time: "8:00 PM", imageUrl: "https://383g02p03theaterlionsden.neocities.org/movie/hari-krish-interstellar-filter-2.jpg" },
-  { id: 3, title: "Interstellar", time: "6:45 PM", imageUrl: "https://383g02p03theaterlionsden.neocities.org/movie/inception_2010_imax_original_film_art_5000x.jpg" }
+  { id: 2, title: "Inception", time: "8:00 PM", imageUrl: "https://383g02p03theaterlionsden.neocities.org/movie/inception_2010_imax_original_film_art_5000x.jpg" },
+  { id: 3, title: "Interstellar", time: "6:45 PM", imageUrl: "https://383g02p03theaterlionsden.neocities.org/movie/hari-krish-interstellar-filter-2.jpg" },
+  { id: 4, title: "Novocaine", time: "10:45 PM", imageUrl: "https://m.media-amazon.com/images/M/MV5BMjM0MmU3MGUtNDhlNS00NjM3LWI5ODktMTNjZThjNDM3YTA4XkEyXkFqcGc@._V1_.jpg" },
 ];
 
 const Movies = () => {

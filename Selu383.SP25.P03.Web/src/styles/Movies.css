@@ -56,7 +56,7 @@
 
 .movie-actions {
     display: flex;
-    gap: 15px;
+    gap: 75px;
     margin-top: 20px;
 }
 
@@ -73,6 +73,7 @@
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    margin-right: 5px;
 }
 
 .buy-tickets-btn:hover, .description-btn:hover {
