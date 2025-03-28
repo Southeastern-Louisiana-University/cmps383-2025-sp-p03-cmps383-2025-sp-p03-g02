@@ -15,27 +15,21 @@
 }
 
 .account-info {
-    background-color: white;
-    padding: 30px;
-    width: 100%;
-    border-radius: 6px;  /* Less rounded corners */
-    text-align: left;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);  /* More subtle shadow */
-    font-weight: bold;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    margin-bottom: 30px;
-    border: 1px solid #e5e7eb;
-}
-
-.account-info h2 {
-    font-size: 20px;
-    color: #1E3748;
+    background-color: #fff;
+    color: #000;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
     margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #f3f4f6;
-}
+  }
+  
+  
+
+  .account-info h2 {
+    color: #000;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
 
 .account-info p {
     font-size: 16px;

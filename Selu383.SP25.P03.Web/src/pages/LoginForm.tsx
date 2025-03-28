@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { UserDto } from "../models/UserDto"; 
 import "../styles/Login.css"; 
+import { useNavigate } from "react-router-dom";
 
 interface LoginFormProps {
   onLoginSuccess: (user: UserDto) => void;
@@ -12,6 +13,8 @@ export function LoginForm({ onLoginSuccess, onSwitchToSignUp }: LoginFormProps) 
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   return (
     <div className="login-wrapper">
@@ -51,46 +54,44 @@ export function LoginForm({ onLoginSuccess, onSwitchToSignUp }: LoginFormProps) 
           <p className="switch-text">
             Don't have an account? <span onClick={onSwitchToSignUp} className="switch-link">Sign up</span>
           </p>
+          
         </form>
       </div>
     </div>
   );
 
-  function login(e: React.FormEvent<HTMLFormElement>) {
+  async function login(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (loading) return;
 
     setFormError("");
     setLoading(true);
-    
-    // Hardcoded test user for frontend testing
-  if (username === "test" && password === "test") {
-    setTimeout(() => {
-      const testUser: UserDto = {
-        id: "1",
-        username: "test",
-        email: "test@example.com",
-      };
-      onLoginSuccess(testUser);
-      setLoading(false);
-    }, ); 
-    return;
-  }
-    fetch("/api/authentication/login", {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error();
-        return response.json();
-      })
-      .then((data: UserDto) => onLoginSuccess(data))
-      .catch(() => {
-        setFormError("Wrong username or password");
-      })
-      .finally(() => {
-        setLoading(false);
+
+    try {
+      const loginRes = await fetch("/api/authentication/login", {
+        method: "POST",
+        body: JSON.stringify({ userName: username, password }),
+        headers: { "Content-Type": "application/json" },
       });
+
+      if (!loginRes.ok) {
+        throw new Error("Login failed");
+      }
+
+      // Fetch logged-in user from session
+      const meRes = await fetch("/api/authentication/me");
+      if (!meRes.ok) {
+        throw new Error("Unable to retrieve user info.");
+      }
+
+      const user: UserDto = await meRes.json();
+      onLoginSuccess(user); // Update currentUser in App.tsx
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      setFormError("Wrong username or password");
+    } finally {
+      setLoading(false);
+    }
   }
 }
