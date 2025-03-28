@@ -3,18 +3,7 @@
     margin: 0 auto;
     padding: 40px 30px;
     text-align: left;
-}
-
-.account-title {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 25px;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 15px;
-    color: #1E3748;
-}
-
-.account-info {
+@@ -18,9 +18,9 @@
     background-color: white;
     padding: 30px;
     width: 100%;
@@ -24,27 +13,7 @@
     font-weight: bold;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    margin-bottom: 30px;
-    border: 1px solid #e5e7eb;
-}
-
-.account-info h2 {
-    font-size: 20px;
-    color: #1E3748;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.account-info p {
-    font-size: 16px;
-    color: #374151;
-    font-weight: normal;
-    margin: 0;
-    gap: 25px;
-    line-height: 1.6;
-}
+@@ -48,31 +48,31 @@
 
 .account-actions {
     display: flex;
@@ -76,36 +45,10 @@
 }
 
 .account-btn:hover {
-    background-color: #f3f4f6;
-    border-color: #d1d5db;
-}
-
-.sign-out-btn {
+@@ -84,6 +84,7 @@
     background-color: #f9fafb;
     color: #dc2626;
     border: 1px solid #dc2626;
     margin-right: 2px;
     
-}
-
-.sign-out-btn:hover {
-    background-color: #dc2626;
-    color: white;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .account-info {
-        grid-template-columns: 1fr;
-    }
-    
-    .account-actions {
-        flex-direction: column;
-        gap: 20px;  /* Adjust gap for mobile */
-    }
-    
-    .account-btn,
-    .sign-out-btn {
-        width: 100%;
-    }
 }
