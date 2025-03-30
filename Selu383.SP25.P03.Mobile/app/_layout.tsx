@@ -23,7 +23,7 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync();
       
-      router.replace('/auth/SignIn&SignUp');
+      router.replace('/(tabs)/movies');
     }
   }, [loaded]);
 

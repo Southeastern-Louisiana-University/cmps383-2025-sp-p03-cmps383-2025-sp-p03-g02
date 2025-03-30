@@ -48,14 +48,6 @@ export default function AccountScreen() {
         <Text style={styles.menuText}>Help Center</Text>
       </TouchableOpacity>
 
-      {/* Management Button (Navigates to EditTablesPage) */}
-      <TouchableOpacity 
-        style={styles.managementButton}
-        onPress={() => navigation.navigate('EditTablesPage')}
-      >
-        <Text style={styles.managementText}>Management</Text>
-      </TouchableOpacity>
-
       <TouchableOpacity 
         style={styles.signOutButton}
         onPress={handleSignOut}
