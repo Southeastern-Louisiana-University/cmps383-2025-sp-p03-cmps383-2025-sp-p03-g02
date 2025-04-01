@@ -7,6 +7,8 @@ import Account from "./pages/Account";
 import Management from "./pages/Management";
 import { AddFoodItemForm } from './pages/EditFoodMenu';
 import { AddMovieForm } from './pages/EditMovie';
+import { AddShowTimeForm } from './pages/EditShowTimes';
+import { AddTicketForm } from './pages/EditTicket';
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
 import { UserDto } from "./models/UserDto";
@@ -54,6 +56,14 @@ const AppRoutes = ({
       <Route
         path="/editmovie"
         element={currentUser ? <AddMovieForm /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/editticket"
+        element={currentUser ? <AddTicketForm /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/editshowtime"
+        element={currentUser ? <AddShowTimeForm /> : <Navigate to="/login" />}
       />
 
       {/* Auth Routes */}
