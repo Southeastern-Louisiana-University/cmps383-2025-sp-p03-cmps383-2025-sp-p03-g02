@@ -31,7 +31,7 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
             Tickets
           </NavLink>
           <NavLink to="/food" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            Food
+            Menu
           </NavLink>
           <NavLink to="/account" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
             Account

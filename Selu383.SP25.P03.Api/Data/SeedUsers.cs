@@ -21,6 +21,10 @@ namespace Selu383.SP25.P03.Api.Data
                 await userManager.CreateAsync(galkadi, "Password123!");
                 await userManager.AddToRoleAsync(galkadi, "Admin");
 
+                var lions = new User { UserName = "lions", };
+                await userManager.CreateAsync(lions, "test");
+                await userManager.AddToRoleAsync(lions, "WaitStaff");
+
                 var bob = new User { UserName = "bob", };
                 await userManager.CreateAsync(bob, "Password123!");
                 await userManager.AddToRoleAsync(bob, "User");

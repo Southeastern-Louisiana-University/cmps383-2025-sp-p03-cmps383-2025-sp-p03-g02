@@ -19,6 +19,36 @@
     text-align: center;
 }
 
+/* Category Tabs */
+.food-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.food-tab {
+    padding: 10px 15px;
+    background: #e5e7eb;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.food-tab.active {
+    background: #3b82f6;
+    color: white;
+    font-weight: bold;
+}
+
+.food-tab:hover {
+    background: #2563eb;
+    color: white;
+}
 
 .food-list {
     display: grid;
@@ -38,8 +68,7 @@
     border-radius: 10px;
     background-color: white;
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
+}
 
 .food-item:hover {
     transform: translateY(-5px);
@@ -69,7 +98,7 @@
 
 .add-to-order-btn {
     margin-top: auto;
-  align-items: center;
+    align-items: center;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -79,8 +108,7 @@
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
-    
-  }
+}
 
 .add-to-order-btn:hover {
     background-color: #2563eb;
@@ -93,6 +121,4 @@
     position: absolute;
     top: 20px;
     right: 20px;
-  }
-  
-  
+}

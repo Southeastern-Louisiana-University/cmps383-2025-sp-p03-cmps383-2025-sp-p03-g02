@@ -4,7 +4,7 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem
 {
     public class FoodItem
     {
-        public int Id { get; set; } // Primary key
+        public int Id { get; set; } 
 
         [MaxLength(120)]
         public required string Name { get; set; }
@@ -14,6 +14,9 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem
         [Range(0, 1000)]
         public decimal Price { get; set; }
 
-        public string? ImageUrl { get; set; } // URL for the food item's image
+        public string? ImageUrl { get; set; } 
+
+        [Required]
+        public string Category { get; set; } = string.Empty; 
     }
 }
