@@ -69,11 +69,11 @@ export function AddShowTimeForm() {
     setLoading(true);
 
     const showtime = {
-      movieId: movieId === "" ? 0 : Number(movieId), // Ensure movieId is number or 0 if empty
+      movieId: movieId === "" ? 0 : Number(movieId), 
       showDate,
       showTime,
-      ticketPrice: ticketPrice === "" ? 0 : Number(ticketPrice), // Ensure ticketPrice is number or 0 if empty
-      theaterId: theaterId === "" ? 0 : Number(theaterId), // Ensure theaterId is number or 0 if empty
+      ticketPrice: ticketPrice === "" ? 0 : Number(ticketPrice),
+      theaterId: theaterId === "" ? 0 : Number(theaterId), 
     };
 
     if (operation === "add") {
