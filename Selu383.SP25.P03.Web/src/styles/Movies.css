@@ -65,7 +65,7 @@
     padding: 10px 25px;
     font-size: 14px;
     font-weight: 600;
-    background-color: #3182ce;
+    background-color: #3b82f6;
     color: white;
     border: none;
     border-radius: 4px;
@@ -77,7 +77,7 @@
 }
 
 .buy-tickets-btn:hover, .description-btn:hover {
-    background-color: #2c5282;
+    background-color: #2563eb;
     transform: translateY(-2px);
 }
 
