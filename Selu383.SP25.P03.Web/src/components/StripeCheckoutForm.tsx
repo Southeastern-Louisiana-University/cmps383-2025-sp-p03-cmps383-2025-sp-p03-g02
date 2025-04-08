@@ -7,10 +7,8 @@ import {
   useElements
 } from '@stripe/react-stripe-js';
 
-// Initialize Stripe with your publishable key
 const stripePromise = loadStripe('pk_test_your_publishable_key');
 
-// Payment form component
 const CheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -20,13 +18,12 @@ const CheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
   const [succeeded, setSucceeded] = useState(false);
 
   useEffect(() => {
-    // Create PaymentIntent as soon as the page loads
     fetch('/api/payment/create-payment-intent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ amount: amount * 100, currency: 'usd' }) // Convert to cents
+      body: JSON.stringify({ amount: amount * 100, currency: 'usd' }) 
     })
       .then(res => res.json())
       .then(data => {
@@ -41,7 +38,6 @@ const CheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
     event.preventDefault();
     
     if (!stripe || !elements) {
-      // Stripe.js has not loaded yet. Make sure to disable form submission until it's ready.
       return;
     }
 
@@ -59,8 +55,6 @@ const CheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
       payment_method: {
         card: cardElement,
         billing_details: {
-          name: 'Customer Name', // You can collect this from a form input
-          email: 'customer@example.com' // You can collect this from a form input
         }
       }
     });
@@ -71,7 +65,6 @@ const CheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       setError(null);
       setSucceeded(true);
-      // You can handle post-payment logic here
     }
   };
 
@@ -112,7 +105,6 @@ const CheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
   );
 };
 
-// Parent component that wraps the form with Stripe Elements
 const StripeCheckoutForm: React.FC<{ amount: number }> = ({ amount }) => {
   return (
     <Elements stripe={stripePromise}>

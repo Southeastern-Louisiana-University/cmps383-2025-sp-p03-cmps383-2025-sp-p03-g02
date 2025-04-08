@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 
-// Initialize Stripe with your publishable key
 const stripePromise = loadStripe('pk_test_your_publishable_key');
 
 interface StripeCheckoutButtonProps {
-  amount: number; // Amount in dollars (e.g., 29.99)
+  amount: number; 
   productName: string;
   description?: string;
 }
@@ -29,14 +28,13 @@ const StripeCheckoutButton: React.FC<StripeCheckoutButtonProps> = ({
         throw new Error('Stripe failed to initialize');
       }
 
-      // Create a checkout session on your backend
       const response = await fetch('/api/StripeCheckout/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          amount: Math.round(amount * 100), // Convert to cents
+          amount: Math.round(amount * 100), 
           productName,
           description
         }),
@@ -45,10 +43,8 @@ const StripeCheckoutButton: React.FC<StripeCheckoutButtonProps> = ({
       const session = await response.json();
 
       if (session.url) {
-        // Redirect to Stripe Checkout
         window.location.href = session.url;
       } else {
-        // Alternatively, you can use the session ID to redirect
         const result = await stripe.redirectToCheckout({
           sessionId: session.sessionId,
         });

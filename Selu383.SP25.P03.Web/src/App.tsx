@@ -9,7 +9,7 @@ import "./App.css";
 function App() {
   const [currentUser, setCurrentUser] = useState<UserDto | undefined>(undefined);
   const [showSignUp, setShowSignUp] = useState(false);
-  const [loading, setLoading] = useState(true); // loading state
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     async function fetchCurrentUser() {
@@ -22,7 +22,7 @@ function App() {
       } catch (error) {
         console.error("Failed to fetch current user:", error);
       } finally {
-        setLoading(false); //done loading
+        setLoading(false); 
       }
     }
 
