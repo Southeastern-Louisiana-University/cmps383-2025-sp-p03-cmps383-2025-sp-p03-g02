@@ -17,46 +17,30 @@ interface Theater {
 
 // Theater data with proper typing
 const theaters: Theater[] = [
-  { 
-    id: '1', 
-    name: "Lion's Den Baton Rouge", 
-    address: '10000 Perkins Rowe, Baton Rouge, LA 70810', 
-    distance: '1.2 mi',
-    location: { lat: 30.3921, lng: -91.1453 },
-    amenities: ['IMAX', 'Dine-in', 'Reserved Seating', 'Dolby Atmos']
-  },
-  { 
-    id: '2', 
-    name: "Lion's Den Hammond", 
-    address: '1200 W University Ave, Hammond, LA 70401', 
-    distance: '14.2 mi',
-    location: { lat: 30.5102, lng: -90.4692 },
-    amenities: ['Digital 3D', 'Premium Recliners', 'Bar', 'IMAX']
-  },
-  { 
-    id: '3', 
-    name: "Lion's Den Denham Springs", 
-    address: '2200 S Range Ave, Denham Springs, LA 70726', 
-    distance: '8.5 mi',
-    location: { lat: 30.4628, lng: -90.9567 },
-    amenities: ['Dolby Cinema', 'Reserved Seating', 'Arcade']
-  },
-  { 
-    id: '4', 
-    name: "Lion's Den Gonzales", 
-    address: '921 Cabelas Pkwy, Gonzales, LA 70737', 
-    distance: '20.3 mi',
-    location: { lat: 30.2094, lng: -90.9192 },
-    amenities: ['Premium Format', 'Recliners', 'Full Bar']
-  },
-  { 
-    id: '5', 
-    name: "Lion's Den Lafayette", 
-    address: '2315 Kaliste Saloom Rd, Lafayette, LA 70508', 
-    distance: '48.6 mi',
-    location: { lat: 30.1708, lng: -91.9875 },
-    amenities: ['RPX', 'Studio Grill', 'VIP Seating', 'Full Bar']
-  },
+    { 
+        id: '1', 
+        name: "Lion's Den New York", 
+        address: '570 2nd Ave, New York, NY 10016', 
+        distance: '1.2 mi',
+        location: { lat: 40.7431, lng: -73.9747 },
+        amenities: ['IMAX', 'Dine-in', 'Reserved Seating', 'Dolby Atmos']
+      },
+      { 
+        id: '2', 
+        name: "Lion's Den New Orleans", 
+        address: '636 N Broad St, New Orleans, LA 70119', 
+        distance: '2.5 mi',
+        location: { lat: 29.9719, lng: -90.0821 },
+        amenities: ['Digital 3D', 'Premium Recliners', 'Bar', 'IMAX']
+      },
+      { 
+        id: '3', 
+        name: "Lion's Den Los Angeles", 
+        address: '4020 Marlton Ave, Los Angeles, CA 90008', 
+        distance: '3.8 mi',
+        location: { lat: 34.0101, lng: -118.3385 },
+        amenities: ['Dolby Cinema', 'Reserved Seating', 'Arcade']
+      },
 ];
 
 const Theaters: React.FC = () => {

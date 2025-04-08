@@ -8,7 +8,7 @@
   body {
     font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
     background-color: #f5f7fa;
-    color: #333;
+    color: #1356e7;
     line-height: 1.6;
   }
   
@@ -27,7 +27,7 @@
   .theaters-title {
     font-weight: 800;
     font-size: 36px;
-    color: #1a2b47;
+    color: #3765ae;
     margin-bottom: 10px;
     position: relative;
   }
@@ -37,14 +37,14 @@
     display: block;
     width: 60px;
     height: 4px;
-    background: linear-gradient(90deg, #0C6184, #4A6375);
+    background: linear-gradient(90deg, #0C6184, #708da2);
     margin: 15px auto 0;
     border-radius: 2px;
   }
   
   .theaters-subtitle {
     font-size: 18px;
-    color: #4A6375;
+    color: #7b98ad;
     font-weight: 500;
   }
   
