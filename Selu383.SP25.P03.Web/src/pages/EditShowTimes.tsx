@@ -6,6 +6,7 @@ interface ShowtimeDto {
   movieId: number;
   showDate: string;
   showTime: string;
+  showtimeDate: string;
   ticketPrice: number;
   theaterId: number;
 }
@@ -41,21 +42,21 @@ export function AddShowTimeForm() {
   }, []);
 
   const fetchMovies = () => {
-    fetch("api/movie") 
+    fetch("api/movie")
       .then((response) => response.json())
       .then((data: MovieDto[]) => setMovies(data))
       .catch(() => setFormError("Failed to fetch movies"));
   };
 
   const fetchTheaters = () => {
-    fetch("api/theaters") 
+    fetch("api/theaters")
       .then((response) => response.json())
       .then((data: TheaterDto[]) => setTheaters(data))
       .catch(() => setFormError("Failed to fetch theaters"));
   };
 
   const fetchShowtimes = () => {
-    fetch("api/showtimes") 
+    fetch("api/showtimes")
       .then((response) => response.json())
       .then((data: ShowtimeDto[]) => setShowtimes(data))
       .catch(() => setFormError("Failed to fetch showtimes"));
@@ -64,26 +65,22 @@ export function AddShowTimeForm() {
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
-  
+
     setFormError("");
     setLoading(true);
-  
-    // Combine showDate and showTime into a single ISO string
-    const dateTime = `${showDate}T${showTime}`;
-  
-    // Log the values to check they're correct
-    console.log("Movie ID:", movieId);
-    console.log("Theater ID:", theaterId);
-    
+
+    // Combine showDate and showTime into one string (e.g. '2025-04-15T03:33')
+    const dateTimeString = `${showDate}T${showTime}`;
+
     const showtime = {
-      movieId: movieId === "" ? 0 : Number(movieId), // Ensure ID is being sent, not title
-      showDate: dateTime, // Send combined date and time as a string
+      movieId: movieId === "" ? 0 : Number(movieId),
+      showTimeDate: dateTimeString, 
       ticketPrice: ticketPrice === "" ? 0 : Number(ticketPrice),
-      theaterId: theaterId === "" ? 0 : Number(theaterId), // Ensure ID is being sent, not name
+      theaterId: theaterId === "" ? 0 : Number(theaterId),
     };
-  
+
     if (operation === "add") {
-      fetch("api/showtimes", { 
+      fetch("api/showtimes", {
         method: "POST",
         body: JSON.stringify(showtime),
         headers: { "Content-Type": "application/json" },
@@ -96,7 +93,7 @@ export function AddShowTimeForm() {
         .catch(() => setFormError("Failed to add showtime"))
         .finally(() => setLoading(false));
     } else if (operation === "edit" && selectedShowtime?.id) {
-      fetch(`api/showtimes/${selectedShowtime.id}`, { 
+      fetch(`api/showtimes/${selectedShowtime.id}`, {
         method: "PUT",
         body: JSON.stringify({ ...showtime, id: selectedShowtime.id }),
         headers: { "Content-Type": "application/json" },
@@ -159,7 +156,7 @@ export function AddShowTimeForm() {
             required
             value={movieId}
             onChange={(e) =>
-              setMovieId(e.target.value ? Number(e.target.value) : "") // Convert to number or empty string
+              setMovieId(e.target.value ? Number(e.target.value) : "")
             }
           >
             <option value="">Select Movie</option>
@@ -204,7 +201,7 @@ export function AddShowTimeForm() {
             required
             value={ticketPrice}
             onChange={(e) =>
-              setTicketPrice(e.target.value ? Number(e.target.value) : "") // Convert to number or empty string
+              setTicketPrice(e.target.value ? Number(e.target.value) : "") 
             }
           />
         </div>
@@ -241,51 +238,55 @@ export function AddShowTimeForm() {
       </form>
 
       <h2>Showtimes List</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Movie Title</th>
-            <th>Show Date</th>
-            <th>Show Time</th>
-            <th>Ticket Price</th>
-            <th>Theater Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {showtimes.map((showtime) => {
-            const movie = movies.find((m) => m.id === showtime.movieId);
-            const theater = theaters.find((t) => t.id === showtime.theaterId);
-            return (
-              <tr key={showtime.id}>
-                <td>{showtime.id}</td>
-                <td>{movie?.title}</td>
-                <td>{showtime.showDate}</td>
-                <td>{showtime.showTime}</td>
-                <td>${showtime.ticketPrice.toFixed(2)}</td>
-                <td>{theater?.name}</td>
-                <td>
-                  <button
-                    onClick={() => {
-                      setOperation("edit");
-                      setSelectedShowtime(showtime);
-                      setMovieId(showtime.movieId || "");
-                      setShowDate(showtime.showDate);
-                      setShowTime(showtime.showTime);
-                      setTicketPrice(showtime.ticketPrice || "");
-                      setTheaterId(showtime.theaterId || "");
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button onClick={() => showtime.id && handleDelete(showtime.id)}>Delete</button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Movie Title</th>
+      <th>Showtime</th>
+      <th>Ticket Price</th>
+      <th>Theater Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {showtimes.map((showtime) => {
+      const movie = movies.find((m) => m.id === showtime.movieId);
+      const theater = theaters.find((t) => t.id === showtime.theaterId);
+      return (
+        <tr key={showtime.id}>
+          <td>{showtime.id}</td>
+          <td>{movie?.title}</td>
+          <td>{showtime.showtimeDate}</td> {/* Display the combined showTimeDate here */}
+          <td>${showtime.ticketPrice.toFixed(2)}</td>
+          <td>{theater?.name}</td>
+          <td>
+            <button
+              onClick={() => {
+                setOperation("edit");
+                setSelectedShowtime(showtime);
+                setMovieId(showtime.movieId || "");
+                setOperation("edit");
+                setSelectedShowtime(showtime);
+                setMovieId(showtime.movieId || "");
+                setShowDate(showtime.showDate);
+                setShowTime(showtime.showTime);
+                setTicketPrice(showtime.ticketPrice || "");
+                setTheaterId(showtime.theaterId || "");
+                setTicketPrice(showtime.ticketPrice || "");
+                setTheaterId(showtime.theaterId || "");
+              }}
+            >
+              Edit
+            </button>
+            <button onClick={() => showtime.id && handleDelete(showtime.id)}>Delete</button>
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+</table>
+
     </div>
   );
 }
