@@ -207,33 +207,63 @@ const Food = ({ currentUser }: FoodProps) => {
             <h2>Your Cart</h2>
             <ul>
               {Object.entries(cart).map(([id, qty]) => {
-                const item = foodItems.find((i) => i.id === parseInt(id));
+                const itemId = parseInt(id); // Convert string to number
+                const item = foodItems.find((i) => i.id === itemId);
                 if (!item) return null;
                 return (
-                  <li key={id}>
-                    {item.name} x{qty} = ${(item.price * qty).toFixed(2)}
-                    <button
-                      onClick={() => removeFromCart(parseInt(id))}
-                      className="remove-cart-item-btn"
-                    >
-                      <FaTrash />
-                    </button>
+                  <li key={id} className="cart-item">
+                    <span>{item.name}</span>
+                    <div className="cart-item-controls">
+                      <span>= ${(item.price * qty).toFixed(2)}</span>
+                      <div className="quantity-controls">
+                        <button
+                          onClick={() =>
+                            setCart((prev) => {
+                              const newQty = Math.max(
+                                (prev[itemId] || 0) - 1,
+                                0
+                              );
+                              if (newQty === 0) {
+                                const updated = { ...prev };
+                                delete updated[itemId];
+                                return updated;
+                              }
+                              return { ...prev, [itemId]: newQty };
+                            })
+                          }
+                        >
+                          -
+                        </button>
+                        <span>{qty}</span>
+                        <button
+                          onClick={() =>
+                            setCart((prev) => ({
+                              ...prev,
+                              [itemId]: (prev[itemId] || 0) + 1,
+                            }))
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => removeFromCart(itemId)}
+                        className="remove-cart-item-btn"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </li>
                 );
               })}
             </ul>
             {/* Total price calculation */}
-            <div
-              style={{
-                fontWeight: "bold",
-                marginTop: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className="cart-total">
               Total: $
               {Object.entries(cart)
                 .reduce((total, [id, qty]) => {
-                  const item = foodItems.find((i) => i.id === parseInt(id));
+                  const itemId = parseInt(id); // Convert string to number
+                  const item = foodItems.find((i) => i.id === itemId);
                   return item ? total + item.price * qty : total;
                 }, 0)
                 .toFixed(2)}
@@ -250,7 +280,7 @@ const Food = ({ currentUser }: FoodProps) => {
               onClick={() => {
                 setToastMessage("Your food will be delivered shortly!");
                 setShowToast(true);
-                //clears Cart and Item Quantaties
+                // Clears Cart and Item Quantities
                 setCart({});
                 setQuantities({});
                 localStorage.removeItem("cart");

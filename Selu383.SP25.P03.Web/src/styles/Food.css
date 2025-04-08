@@ -267,3 +267,24 @@
     background-color: #059669; /* darker green on hover */
   }
   
+  /* Styling for cart item layout */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+/* Styling for the quantity and price section within the cart item */
+.cart-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Styling for the total price in the cart modal */
+.cart-total {
+  font-weight: bold;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
