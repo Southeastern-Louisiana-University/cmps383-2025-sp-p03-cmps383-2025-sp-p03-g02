@@ -40,7 +40,7 @@ export default function AccountScreen() {
       
       <TouchableOpacity 
         style={styles.menuItem}
-        onPress={() => handleMenuOption('Payment Methods')}
+        onPress={() => handleMenuOption('Payment Methods', '/payment-methods')}
       >
         <Text style={styles.menuText}>Payment Methods</Text>
       </TouchableOpacity>
