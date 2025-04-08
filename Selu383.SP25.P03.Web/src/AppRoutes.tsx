@@ -9,9 +9,11 @@ import { AddFoodItemForm } from './pages/EditFoodMenu';
 import { AddMovieForm } from './pages/EditMovie';
 import { AddShowTimeForm } from './pages/EditShowTimes';
 // import { AddTicketForm } from './pages/EditTicket';
+import { AddSeatForm } from './pages/EditSeats';
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
 import { UserDto } from "./models/UserDto";
+
 
 interface AppRoutesProps {
   currentUser?: UserDto;
@@ -61,6 +63,12 @@ const AppRoutes = ({
         path="/editticket"
       //  element={currentUser ? <AddTicketForm /> : <Navigate to="/login" />}
       />
+
+      <Route
+        path="/editseat"
+        element={currentUser ? <AddSeatForm /> : <Navigate to="/login" />}
+      />
+
       <Route
         path="/editshowtime"
         element={currentUser ? <AddShowTimeForm /> : <Navigate to="/login" />}
