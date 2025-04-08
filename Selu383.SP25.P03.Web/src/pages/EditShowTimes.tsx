@@ -130,6 +130,13 @@ export function AddShowTimeForm() {
     setOperation("add");
   };
 
+  const formatShowtimeDate = (showtimeDate: string) => {
+    const dateTime = new Date(showtimeDate);
+    const date = dateTime.toLocaleDateString(); // Formats to MM/DD/YYYY
+    const time = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Formats to HH:MM AM/PM
+    return { date, time };
+  };
+
   return (
     <div className="showtime-menu">
       <h1>Manage Showtimes</h1>
@@ -238,55 +245,52 @@ export function AddShowTimeForm() {
       </form>
 
       <h2>Showtimes List</h2>
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Movie Title</th>
-      <th>Showtime</th>
-      <th>Ticket Price</th>
-      <th>Theater Name</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {showtimes.map((showtime) => {
-      const movie = movies.find((m) => m.id === showtime.movieId);
-      const theater = theaters.find((t) => t.id === showtime.theaterId);
-      return (
-        <tr key={showtime.id}>
-          <td>{showtime.id}</td>
-          <td>{movie?.title}</td>
-          <td>{showtime.showtimeDate}</td> {/* Display the combined showTimeDate here */}
-          <td>${showtime.ticketPrice.toFixed(2)}</td>
-          <td>{theater?.name}</td>
-          <td>
-            <button
-              onClick={() => {
-                setOperation("edit");
-                setSelectedShowtime(showtime);
-                setMovieId(showtime.movieId || "");
-                setOperation("edit");
-                setSelectedShowtime(showtime);
-                setMovieId(showtime.movieId || "");
-                setShowDate(showtime.showDate);
-                setShowTime(showtime.showTime);
-                setTicketPrice(showtime.ticketPrice || "");
-                setTheaterId(showtime.theaterId || "");
-                setTicketPrice(showtime.ticketPrice || "");
-                setTheaterId(showtime.theaterId || "");
-              }}
-            >
-              Edit
-            </button>
-            <button onClick={() => showtime.id && handleDelete(showtime.id)}>Delete</button>
-          </td>
-        </tr>
-      );
-    })}
-  </tbody>
-</table>
-
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Movie Title</th>
+            <th>Show Date</th> {/* Separated show date column */}
+            <th>Show Time</th> {/* Separated show time column */}
+            <th>Ticket Price</th>
+            <th>Theater Name</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {showtimes.map((showtime) => {
+            const movie = movies.find((m) => m.id === showtime.movieId);
+            const theater = theaters.find((t) => t.id === showtime.theaterId);
+            const { date, time } = formatShowtimeDate(showtime.showtimeDate); // Extracted date and time
+            return (
+              <tr key={showtime.id}>
+                <td>{showtime.id}</td>
+                <td>{movie?.title}</td>
+                <td>{date}</td> {/* Display separated date */}
+                <td>{time}</td> {/* Display separated time */}
+                <td>${showtime.ticketPrice.toFixed(2)}</td>
+                <td>{theater?.name}</td>
+                <td>
+                  <button
+                    onClick={() => {
+                      setOperation("edit");
+                      setSelectedShowtime(showtime);
+                      setMovieId(showtime.movieId || "");
+                      setShowDate(showtime.showDate);
+                      setShowTime(showtime.showTime);
+                      setTicketPrice(showtime.ticketPrice || "");
+                      setTheaterId(showtime.theaterId || "");
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button onClick={() => showtime.id && handleDelete(showtime.id)}>Delete</button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
