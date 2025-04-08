@@ -1,3 +1,4 @@
+
 import { Routes, Route } from "react-router-dom";
 import Movies from "./pages/Movies";
 import Theaters from "./pages/Theaters";
@@ -6,6 +7,7 @@ import Food from "./pages/Food";
 import Account from "./pages/Account";
 import Management from "./pages/Management.tsx";
 import { AddFoodItemForm } from './pages/EditFoodMenu.tsx';
+import PaymentPage from './pages/PaymentPage';
 
 const AppRoutes = () => {
     return (
@@ -15,6 +17,7 @@ const AppRoutes = () => {
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/food" element={<Food />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/payment" element={<PaymentPage /> } />
             <Route path="/management" element={<Management />} /> {/* Added Management route */}
             <Route path="/editmenu" element={<AddFoodItemForm /> } />
         </Routes>
