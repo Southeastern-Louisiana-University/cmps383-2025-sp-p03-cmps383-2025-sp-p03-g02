@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../styles/Theaters.css";
 
-// Define the Theater type
+
 interface Theater {
   id: string;
   name: string;
@@ -15,7 +15,7 @@ interface Theater {
   amenities: string[];
 }
 
-// Theater data with proper typing
+
 const theaters: Theater[] = [
     { 
         id: '1', 
@@ -47,7 +47,6 @@ const Theaters: React.FC = () => {
   const navigate = useNavigate();
   const [selectedTheaterId, setSelectedTheaterId] = useState<string | null>(null);
 
-  // Add explicit Theater type to parameters
   const handleViewShowtimes = (theater: Theater): void => {
     navigate(`/movies?theaterId=${theater.id}`);
   };
