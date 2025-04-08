@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, Text, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 const USER = {
   name: 'John Doe',
@@ -8,54 +8,50 @@ const USER = {
 };
 
 export default function AccountScreen() {
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "You have been signed out.");
   };
 
-  const handleMenuOption = (option: string) => {
-    Alert.alert(option, `It works`);
+  const handleMenuOption = (option: string, route?: string) => {
+    if (route) {
+      router.push(route as any);
+    } else {
+      Alert.alert(option, `It works`);
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.pageTitle}>My Account</Text>
-
+      
       <View style={styles.profileCard}>
         <Text style={styles.userName}>{USER.name}</Text>
         <Text style={styles.userEmail}>{USER.email}</Text>
       </View>
-
+      
       <TouchableOpacity 
         style={styles.menuItem}
-        onPress={() => handleMenuOption('Edit Profile')}
+        onPress={() => handleMenuOption('Edit Profile', '/edit-profile')}
       >
         <Text style={styles.menuText}>Edit Profile</Text>
       </TouchableOpacity>
-
+      
       <TouchableOpacity 
         style={styles.menuItem}
         onPress={() => handleMenuOption('Payment Methods')}
       >
         <Text style={styles.menuText}>Payment Methods</Text>
       </TouchableOpacity>
-
+      
       <TouchableOpacity 
         style={styles.menuItem}
-        onPress={() => handleMenuOption('Help Center')}
+        onPress={() => handleMenuOption('Help Center', '/help-center')}
       >
         <Text style={styles.menuText}>Help Center</Text>
       </TouchableOpacity>
-
-      {/* Management Button (Navigates to EditTablesPage) */}
-      <TouchableOpacity 
-        style={styles.managementButton}
-        onPress={() => navigation.navigate('EditTablesPage')}
-      >
-        <Text style={styles.managementText}>Management</Text>
-      </TouchableOpacity>
-
+      
       <TouchableOpacity 
         style={styles.signOutButton}
         onPress={handleSignOut}

@@ -1,7 +1,9 @@
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Selu383.SP25.P03.Api.Data;
 using Selu383.SP25.P03.Api.Features.Users;
+using Stripe;
 
 namespace Selu383.SP25.P03.Api
 {
@@ -22,7 +24,8 @@ namespace Selu383.SP25.P03.Api
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173") // Allow React frontend
+                    //builder.WithOrigins("http://localhost:5173") // Allow React frontend
+                    builder.AllowAnyOrigin() // NOTE -- Change back to code above ^^ after debugging
                         .AllowAnyMethod()
                         .AllowAnyHeader();
                 });
@@ -72,6 +75,9 @@ namespace Selu383.SP25.P03.Api
                 };
                 options.SlidingExpiration = true;
             });
+
+            //Stripe Configuration
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             var app = builder.Build();
 

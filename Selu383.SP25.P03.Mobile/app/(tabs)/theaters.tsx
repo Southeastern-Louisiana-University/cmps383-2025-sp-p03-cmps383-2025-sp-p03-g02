@@ -1,18 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   TouchableOpacity, 
   View, 
   Text, 
   SafeAreaView,
-  FlatList,
   Linking,
   Platform,
-  StatusBar
+  StatusBar,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import * as Location from 'expo-location';
+
+// Function to calculate distance between two coordinates
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 3958.8; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; 
+  
+  return distance;
+}
 
 type Theater = {
   id: string;
@@ -29,62 +48,106 @@ type Theater = {
 const THEATERS: Theater[] = [
   { 
     id: '1', 
-    name: "Lion's Den Baton Rouge", 
-    address: '10000 Perkins Rowe, Baton Rouge, LA 70810', 
-    distance: '1.2 mi',
-    location: { lat: 30.3921, lng: -91.1453 },
+    name: "Lion's Den New York", 
+    address: '570 2nd Ave, New York, NY 10016', 
+    distance: '0.8 mi',
+    location: { lat: 40.7459, lng: -73.9739 },
     amenities: ['IMAX', 'Dine-in', 'Reserved Seating', 'Dolby Atmos']
   },
   { 
     id: '2', 
-    name: "Lion's Den Hammond", 
-    address: '1200 W University Ave, Hammond, LA 70401', 
-    distance: '14.2 mi',
-    location: { lat: 30.5102, lng: -90.4692 },
+    name: "Lion's Den New Orleans", 
+    address: '636 N Broad St, New Orleans, LA 70119', 
+    distance: '1.5 mi',
+    location: { lat: 29.9694, lng: -90.0794 },
     amenities: ['Digital 3D', 'Premium Recliners', 'Bar', 'IMAX']
   },
   { 
     id: '3', 
-    name: "Lion's Den Denham Springs", 
-    address: '2200 S Range Ave, Denham Springs, LA 70726', 
-    distance: '8.5 mi',
-    location: { lat: 30.4628, lng: -90.9567 },
-    amenities: ['Dolby Cinema', 'Reserved Seating', 'Arcade']
-  },
-  { 
-    id: '4', 
-    name: "Lion's Den Gonzales", 
-    address: '921 Cabelas Pkwy, Gonzales, LA 70737', 
-    distance: '20.3 mi',
-    location: { lat: 30.2094, lng: -90.9192 },
-    amenities: ['Premium Format', 'Recliners', 'Full Bar']
-  },
-  { 
-    id: '5', 
-    name: "Lion's Den Lafayette", 
-    address: '2315 Kaliste Saloom Rd, Lafayette, LA 70508', 
-    distance: '48.6 mi',
-    location: { lat: 30.1708, lng: -91.9875 },
-    amenities: ['RPX', 'Studio Grill', 'VIP Seating', 'Full Bar']
-  },
+    name: "Lion's Den Los Angeles", 
+    address: '4020 Marlton Ave, Los Angeles, CA 90008', 
+    distance: '3.2 mi',
+    location: { lat: 34.0163, lng: -118.3374 },
+    amenities: ['Dolby Cinema', 'Reserved Seating', 'Arcade', 'VIP Experience']
+  }
 ];
 
 export default function TheatersScreen() {
   const router = useRouter();
-  const [selectedTheaterId, setSelectedTheaterId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [nearestTheater, setNearestTheater] = useState<Theater | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
-  const handleViewShowtimes = (theater: Theater) => {
-    router.push({
-      pathname: '/(tabs)/movies',
-      params: { theaterId: theater.id }
-    });
+  useEffect(() => {
+    const findNearestTheater = async () => {
+      try {
+        setIsLoading(true);
+        // Request location permissions
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        
+        if (status !== 'granted') {
+          setLocationError('Permission to access location was denied');
+          setNearestTheater(THEATERS[0]);
+          setIsLoading(false);
+          return;
+        }
+
+        // Get the user's current location
+        const location = await Location.getCurrentPositionAsync({});
+        const userLat = location.coords.latitude;
+        const userLng = location.coords.longitude;
+        
+        // Calculate distance to each theater
+        const theatersWithDistance = THEATERS.map(theater => {
+          const distance = calculateDistance(
+            userLat, 
+            userLng, 
+            theater.location.lat, 
+            theater.location.lng
+          );
+          
+          return {
+            ...theater,
+            distanceInMiles: distance,
+            distance: `${distance.toFixed(1)} mi`
+          };
+        });
+        
+        // Sort theaters by distance (closest first)
+        theatersWithDistance.sort((a, b) => a.distanceInMiles - b.distanceInMiles);
+        
+        // Get the closest theater
+        const nearestTheater = theatersWithDistance[0];
+        setNearestTheater(nearestTheater);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error getting location:', error);
+        setLocationError('Could not determine your location');
+        setNearestTheater(THEATERS[0]);
+        setIsLoading(false);
+      }
+    };
+
+    findNearestTheater();
+  }, []);
+
+  const handleViewShowtimes = () => {
+    if (nearestTheater) {
+      router.push({
+        pathname: '/(tabs)/movies',
+        params: { theaterId: nearestTheater.id }
+      });
+    }
   };
 
-  const handleGetDirections = (theater: Theater) => {
-    const address = encodeURIComponent(theater.address);
+  const handleGetDirections = () => {
+    if (!nearestTheater) return;
+    
+    const address = encodeURIComponent(nearestTheater.address);
     const url = Platform.select({
       ios: `maps:q=${address}`,
-      android: `google.navigation:q=${theater.location.lat},${theater.location.lng}`,
+      android: `google.navigation:q=${nearestTheater.location.lat},${nearestTheater.location.lng}`,
       default: `https://www.google.com/maps/search/?api=1&query=${address}`
     });
     
@@ -97,8 +160,8 @@ export default function TheatersScreen() {
     });
   };
 
-  const toggleTheaterDetails = (theaterId: string) => {
-    setSelectedTheaterId(selectedTheaterId === theaterId ? null : theaterId);
+  const toggleExpanded = () => {
+    setExpanded(!expanded);
   };
 
   const renderAmenities = (amenities: string[]) => {
@@ -113,74 +176,92 @@ export default function TheatersScreen() {
     );
   };
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0C6184" />
+          <Text style={styles.loadingText}>Finding your nearest theater...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.pageTitle}>Our Theaters</Text>
-          <Text style={styles.subtitle}>Find a theater near you</Text>
+          <Text style={styles.subtitle}>We've selected the closest theater to you</Text>
         </View>
         
-        <FlatList
-          data={THEATERS}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <View style={styles.theaterItem}>
-              <TouchableOpacity 
-                style={styles.theaterCard}
-                onPress={() => toggleTheaterDetails(item.id)}
-                activeOpacity={0.9}
-              >
-                <View style={styles.cardContent}>
-                  <ThemedText style={styles.theaterName}>{item.name}</ThemedText>
-                  
-                  <View style={styles.locationRow}>
-                    <IconSymbol size={16} name="location.fill" color="#0C6184" />
-                    <ThemedText style={styles.theaterDistance}>
-                      {item.distance} away
-                    </ThemedText>
-                  </View>
-                </View>
+        {locationError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{locationError}</Text>
+          </View>
+        )}
+
+        {nearestTheater && (
+          <View style={styles.theaterItem}>
+            <TouchableOpacity 
+              style={styles.theaterCard}
+              onPress={toggleExpanded}
+              activeOpacity={0.9}
+            >
+              <View style={styles.cardContent}>
+                <ThemedText style={styles.theaterName}>{nearestTheater.name}</ThemedText>
                 
-                <View style={styles.chevronContainer}>
-                  <IconSymbol 
-                    size={22} 
-                    name={selectedTheaterId === item.id ? "chevron.up" : "chevron.down"} 
-                    color="#4A6375" 
-                  />
+                <View style={styles.locationRow}>
+                  <IconSymbol size={16} name="location.fill" color="#0C6184" />
+                  <ThemedText style={styles.theaterDistance}>
+                    {nearestTheater.distance} away
+                  </ThemedText>
                 </View>
-              </TouchableOpacity>
+              </View>
               
-              {selectedTheaterId === item.id && (
-                <View style={styles.detailsContainer}>
-                  <ThemedText style={styles.theaterAddress}>{item.address}</ThemedText>
+              <View style={styles.chevronContainer}>
+                <IconSymbol 
+                  size={22} 
+                  name={expanded ? "chevron.up" : "chevron.down"} 
+                  color="#4A6375" 
+                />
+              </View>
+            </TouchableOpacity>
+            
+            {expanded && (
+              <View style={styles.detailsContainer}>
+                <ThemedText style={styles.theaterAddress}>{nearestTheater.address}</ThemedText>
+                
+                {renderAmenities(nearestTheater.amenities)}
+                
+                <View style={styles.buttonsContainer}>
+                  <TouchableOpacity 
+                    style={styles.directionsButton}
+                    onPress={handleGetDirections}
+                  >
+                    <IconSymbol size={18} name="location.fill" color="#FFFFFF" />
+                    <Text style={styles.directionsButtonText}>Directions</Text>
+                  </TouchableOpacity>
                   
-                  {renderAmenities(item.amenities)}
-                  
-                  <View style={styles.buttonsContainer}>
-                    <TouchableOpacity 
-                      style={styles.directionsButton}
-                      onPress={() => handleGetDirections(item)}
-                    >
-                      <IconSymbol size={18} name="location.fill" color="#FFFFFF" />
-                      <Text style={styles.directionsButtonText}>Directions</Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity 
-                      style={styles.showtimesButton}
-                      onPress={() => handleViewShowtimes(item)}
-                    >
-                      <IconSymbol size={18} name="ticket.fill" color="#FFFFFF" />
-                      <Text style={styles.showtimesButtonText}>View Showtimes</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity 
+                    style={styles.showtimesButton}
+                    onPress={handleViewShowtimes}
+                  >
+                    <IconSymbol size={18} name="ticket.fill" color="#FFFFFF" />
+                    <Text style={styles.showtimesButtonText}>View Showtimes</Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-            </View>
-          )}
-        />
+              </View>
+            )}
+          </View>
+        )}
+        
+        <View style={styles.infoContainer}>
+          <ThemedText style={styles.infoText}>
+            Your movie experience is automatically set to this theater. You can change your default theater in account settings.
+          </ThemedText>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -195,6 +276,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#152F3E',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#152F3E',
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: '#E8EEF2',
   },
   headerContainer: {
     marginTop: Platform.OS === 'ios' ? 10 : 20,
@@ -214,9 +306,15 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     padding: 0,
   },
-  list: {
-    width: '100%',
-    paddingBottom: 20,
+  errorContainer: {
+    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#dc3545',
+    fontSize: 14,
   },
   theaterItem: {
     backgroundColor: '#F0F4F8',
@@ -327,5 +425,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
     marginLeft: 6,
+  },
+  infoContainer: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0C6184',
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#A4B5C5',
+    lineHeight: 20,
   },
 });

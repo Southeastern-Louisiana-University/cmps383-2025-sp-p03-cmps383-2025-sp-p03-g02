@@ -56,11 +56,11 @@
 
 .movie-actions {
     display: flex;
-    gap: 15px;
+    gap: 75px;
     margin-top: 20px;
 }
 
-.buy-tickets-btn, .description-btn {
+.buy-tickets-btn {
     display: inline-block;
     padding: 10px 25px;
     font-size: 14px;
@@ -73,6 +73,7 @@
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    margin-right: 1px;
 }
 
 .buy-tickets-btn:hover, .description-btn:hover {
@@ -87,11 +88,10 @@
     border: none;
 }
 
-/* Smaller movie posters */
 .movie-image {
     width: 120px;
     height: 120px;
-    object-fit: stretch; /* Stretch the image to fill the container */
+    object-fit: stretch; 
     position: absolute;
     right: 25px;
     top: 5px;
@@ -115,4 +115,40 @@
         gap: 10px;
     }
 
+}
+
+.description-btn {
+    position: relative;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 1px;
+}
+
+.description-popup {
+    position: fixed;
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    width: 250px;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }

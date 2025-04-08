@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -13,7 +14,7 @@ function CustomHapticTab(props: BottomTabBarButtonProps) {
   const focused = props.accessibilityState?.selected;
   
   return (
-    <View style={{ 
+    <View style={{
       flex: 1,
       backgroundColor: focused ? 'rgba(10, 126, 164, 0.20)' : 'transparent',
       borderTopWidth: focused ? 2 : 0,
@@ -27,6 +28,14 @@ function CustomHapticTab(props: BottomTabBarButtonProps) {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const renderIcon = (iosIconName: string, androidIconName: string, color: string) => {
+    if (Platform.OS === 'ios') {
+      return <IconSymbol size={28} name={iosIconName as any} color={color} />;
+    } else {
+      return <Ionicons name={androidIconName as any} size={28} color={color} />;
+    }
+  };
 
   return (
     <Tabs
@@ -50,35 +59,35 @@ export default function TabLayout() {
         name="movies"
         options={{
           title: 'Movies',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="film" color={color} />,
+          tabBarIcon: ({ color }) => renderIcon("film", "film-outline", color),
         }}
       />
       <Tabs.Screen
         name="theaters"
         options={{
           title: 'Theaters',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="location.fill" color={color} />,
+          tabBarIcon: ({ color }) => renderIcon("location.fill", "location-outline", color),
         }}
       />
       <Tabs.Screen
         name="tickets"
         options={{
           title: 'Tickets',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="ticket" color={color} />,
+          tabBarIcon: ({ color }) => renderIcon("ticket", "ticket-outline", color),
         }}
       />
       <Tabs.Screen
         name="concessions"
         options={{
           title: 'Food',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="fork.knife" color={color} />,
+          tabBarIcon: ({ color }) => renderIcon("fork.knife", "fast-food-outline", color),
         }}
       />
       <Tabs.Screen
         name="account"
         options={{
           title: 'Account',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
+          tabBarIcon: ({ color }) => renderIcon("person", "person-outline", color),
         }}
       />
     </Tabs>
