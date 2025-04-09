@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../styles/EditShowtimes.css";
+import "../styles/EditShowTimes.css";
 
 interface ShowtimeDto {
   id?: number;
