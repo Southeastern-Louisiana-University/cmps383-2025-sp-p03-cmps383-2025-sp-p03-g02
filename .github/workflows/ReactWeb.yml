@@ -3,7 +3,7 @@ name: Deploy React Web App
 on:
   push:
     branches:
-      - main
+      - master
    
   workflow_dispatch:
 
