@@ -33,31 +33,34 @@ const AppRoutes = ({
       {/* Public Routes */}
       <Route path="/" element={<Movies />} />
       <Route path="/theaters" element={<Theaters />} />
+      <Route path="/food" element={<Food currentUser={currentUser} />} />
 
       {/* Protected Routes */}
       <Route
         path="/tickets"
-        element={currentUser ? <Tickets /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/food"
-        element={currentUser ? <Food /> : <Navigate to="/login" />}
+        element={currentUser ? <Tickets /> : <Navigate to="/" />}
       />
       <Route
         path="/account"
-        element={currentUser ? <Account currentUser={currentUser}/> : <Navigate to="/login" />}
+        element={
+          currentUser ? (
+            <Account currentUser={currentUser} />
+          ) : (
+            <Navigate to="/" />
+          )
+        }
       />
       <Route
         path="/management"
-        element={currentUser ? <Management /> : <Navigate to="/login" />}
+        element={currentUser ? <Management /> : <Navigate to="/" />}
       />
       <Route
         path="/editmenu"
-        element={currentUser ? <AddFoodItemForm /> : <Navigate to="/login" />}
+        element={currentUser ? <AddFoodItemForm /> : <Navigate to="/" />}
       />
       <Route
         path="/editmovie"
-        element={currentUser ? <AddMovieForm /> : <Navigate to="/login" />}
+        element={currentUser ? <AddMovieForm /> : <Navigate to="/" />}
       />
        <Route
         path="/editticket"
@@ -66,12 +69,12 @@ const AppRoutes = ({
 
       <Route
         path="/editseat"
-        element={currentUser ? <AddSeatForm /> : <Navigate to="/login" />}
+        element={currentUser ? <AddSeatForm /> : <Navigate to="/" />}
       />
 
       <Route
         path="/editshowtime"
-        element={currentUser ? <AddShowTimeForm /> : <Navigate to="/login" />}
+        element={currentUser ? <AddShowTimeForm /> : <Navigate to="/" />}
       />
 
       {/* Auth Routes */}

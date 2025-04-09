@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { UserDto } from "../models/UserDto";
 import "../styles/Login.css";
-import { Toast } from "../components/toast";
+import { Toast } from "../components/Toast";
 
 interface SignUpFormProps {
   onSignUpSuccess: (user: UserDto) => void;
