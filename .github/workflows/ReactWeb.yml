@@ -25,6 +25,7 @@ jobs:
       - name: Build the frontend
         run: |
           cd Selu383.SP25.P03.Web
-          npm run dev
+          npm run build
+          
 
    
