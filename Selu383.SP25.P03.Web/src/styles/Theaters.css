@@ -1,82 +1,232 @@
-.theaters-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.theaters-title {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 30px;
-    color: #e1e6f3;
-}
-
-.theaters-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-}
-
-.theater-item {
-    background-color: white;
-    padding: 25px;
-    border-radius: 8px;
-    text-align: left;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.theater-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.theater-item h2 {
-    font-size: 22px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #111827;
-}
-
-.theater-address,
-.theater-distance {
-    font-size: 16px;
-    color: #4b5563;
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-.view-showtimes-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 500;
-    border: none;
-    background-color: #3b82f6;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.message-popup {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    animation: fadeIn 0.3s ease-out;
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
-
-.view-showtimes-btn:hover {
-    background-color: #2563eb;
-}
+  
+  body {
+    font-family: 'Montserrat', 'Helvetica Neue', sans-serif;
+    background-color: #f5f7fa;
+    color: #1356e7;
+    line-height: 1.6;
+  }
+  
+  /* Theaters container and header */
+  .theaters-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  .theaters-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .theaters-title {
+    font-weight: 800;
+    font-size: 36px;
+    color: #3765ae;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  
+  .theaters-title:after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #0C6184, #708da2);
+    margin: 15px auto 0;
+    border-radius: 2px;
+  }
+  
+  .theaters-subtitle {
+    font-size: 18px;
+    color: #7b98ad;
+    font-weight: 500;
+  }
+  
+  /* Theaters list */
+  .theaters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  /* Theater card */
+  .theater-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+  
+  .theater-item:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+  
+  .theater-card {
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .theater-card-content {
+    flex: 1;
+  }
+  
+  .theater-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2b47;
+    margin-bottom: 6px;
+  }
+  
+  .location-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .location-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .theater-distance {
+    font-size: 14px;
+    color: #4A6375;
+    font-weight: 500;
+  }
+  
+  .chevron-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .chevron-icon {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Details container */
+  .details-container {
+    padding: 0 24px 24px;
+    border-top: 1px solid #eaeef2;
+    margin-top: -6px;
+    animation: slideDown 0.3s ease;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .theater-address {
+    font-size: 15px;
+    color: #555;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+  
+  /* Amenities */
+  .amenities-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .amenity-tag {
+    background-color: #ebf5ff;
+    color: #0C6184;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+  }
+  
+  /* Buttons */
+  .buttons-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .directions-button,
+  .showtimes-button {
+    padding: 12px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  
+  .directions-button {
+    background-color: #f0f4f7;
+    color: #4A6375;
+  }
+  
+  .directions-button:hover {
+    background-color: #e2e8ed;
+  }
+  
+  .showtimes-button {
+    background-color: #0C6184;
+    color: white;
+  }
+  
+  .showtimes-button:hover {
+    background-color: #0a506e;
+  }
+  
+  .button-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .theaters-title {
+      font-size: 30px;
+    }
+    
+    .buttons-container {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .theaters-title {
+      font-size: 26px;
+    }
+    
+    .theater-card {
+      padding: 16px 20px;
+    }
+    
+    .details-container {
+      padding: 0 20px 20px;
+    }
+  }

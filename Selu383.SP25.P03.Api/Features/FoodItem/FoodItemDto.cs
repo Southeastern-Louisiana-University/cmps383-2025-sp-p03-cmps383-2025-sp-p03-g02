@@ -11,5 +11,7 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem
         public decimal Price { get; set; }
 
         public string? ImageUrl { get; set; }
+
+        public string Category { get; set; } = string.Empty; 
     }
 }

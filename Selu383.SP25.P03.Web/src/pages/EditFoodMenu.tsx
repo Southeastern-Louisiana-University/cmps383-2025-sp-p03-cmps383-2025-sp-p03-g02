@@ -7,6 +7,7 @@ interface FoodItemDto {
   description: string;
   price: number;
   imageUrl: string;
+  category: string;
 }
 
 export function AddFoodItemForm() {
@@ -15,9 +16,10 @@ export function AddFoodItemForm() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
+  const [category, setCategory] = useState("")
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [operation, setOperation] = useState("add"); // Dropdown value for CRUD operations
+  const [operation, setOperation] = useState("add"); 
   const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItemDto | null>(null);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export function AddFoodItemForm() {
     setFormError("");
     setLoading(true);
 
-    const foodItem = { name, description, price, imageUrl };
+    const foodItem = { name, description, price, imageUrl, category };
 
     if (operation === "add") {
       // Add food item
@@ -158,6 +160,17 @@ export function AddFoodItemForm() {
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
           />
+          <div className="form-example">
+            <label htmlFor="category">Category: </label>
+            <input
+              type="text"
+              name="category"
+              id="category"
+              required
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
+          </div>
         </div>
         {formError ? <p style={{ color: "red" }}>{formError}</p> : null}
         <div className="form-example">
@@ -178,6 +191,7 @@ export function AddFoodItemForm() {
             <th>Description</th>
             <th>Price</th>
             <th>Image</th>
+            <th>Category</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -188,11 +202,10 @@ export function AddFoodItemForm() {
               <td>{item.name}</td>
               <td>{item.description}</td>
               <td>{item.price}</td>
+              <td><img src={item.imageUrl} alt={item.name} style={{ width: "50px", height: "50px" }} /></td>
+              <td>{item.category}</td>
               <td>
-                <img src={item.imageUrl} alt={item.name} style={{ width: "50px", height: "50px" }} />
-              </td>
-              <td>
-                <button onClick={() => { setOperation("edit"); setSelectedFoodItem(item); setName(item.name); setDescription(item.description); setPrice(item.price); setImageUrl(item.imageUrl); }}>
+                <button onClick={() => { setOperation("edit"); setSelectedFoodItem(item); setName(item.name); setDescription(item.description); setPrice(item.price); setImageUrl(item.imageUrl); setCategory(item.category); }}>
                   Edit
                 </button>
                 <button onClick={() => item.id && handleDelete(item.id)}>Delete</button>

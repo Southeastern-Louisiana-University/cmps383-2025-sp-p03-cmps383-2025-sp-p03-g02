@@ -1,37 +1,50 @@
-import { useState } from "react";
-import { LoginForm } from "./pages/LoginForm";
-import { SignUpForm } from "./pages/SignUpForm";
-import { UserDto } from "./models/UserDto";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
+import { UserDto } from "./models/UserDto";
 import Navbar from "./components/Navbar";
 import AppRoutes from "./AppRoutes";
-import "./App.css"
+import LoadingSpinner from "./components/LoadingSpinner"; 
+import "./App.css";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<UserDto | undefined>(undefined);
-  const [showSignUp, setShowSignUp] = useState(false); 
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [loading, setLoading] = useState(true); 
+
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      try {
+        const response = await fetch("/api/authentication/me");
+        if (response.ok) {
+          const user: UserDto = await response.json();
+          setCurrentUser(user);
+        }
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+      } finally {
+        setLoading(false); 
+      }
+    }
+
+    fetchCurrentUser();
+  }, []);
 
   return (
-    <>
-      {!currentUser ? (
-        showSignUp ? (
-          <SignUpForm
-            onSignUpSuccess={(user) => setCurrentUser(user)}
-            onSwitchToLogin={() => setShowSignUp(false)} 
-          />
-        ) : (
-          <LoginForm
-            onLoginSuccess={(user) => setCurrentUser(user)}
-            onSwitchToSignUp={() => setShowSignUp(true)} 
-          />
-        )
+    <Router>
+      {loading ? (
+        <LoadingSpinner />
       ) : (
-        <Router>
-          <Navbar />
-          <AppRoutes />
-        </Router>
+        <>
+          <Navbar currentUser={currentUser} setCurrentUser={setCurrentUser} />
+          <AppRoutes
+            currentUser={currentUser}
+            setCurrentUser={setCurrentUser}
+            showSignUp={showSignUp}
+            setShowSignUp={setShowSignUp}
+          />
+        </>
       )}
-    </>
+    </Router>
   );
 }
 

@@ -1,18 +1,20 @@
 import React, { useState } from "react";
-import { UserDto } from "../models/UserDto"; 
-import "../styles/Login.css"; 
+import { UserDto } from "../models/UserDto";
+import "../styles/Login.css";
+import { Toast } from "../components/Toast";
 
 interface SignUpFormProps {
   onSignUpSuccess: (user: UserDto) => void;
-  onSwitchToLogin: () => void; 
+  onSwitchToLogin: () => void;
 }
 
-export function SignUpForm({ onSignUpSuccess, onSwitchToLogin }: SignUpFormProps) {
+export function SignUpForm({ onSwitchToLogin }: SignUpFormProps) {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   return (
     <div className="login-wrapper">
@@ -28,17 +30,6 @@ export function SignUpForm({ onSignUpSuccess, onSwitchToLogin }: SignUpFormProps
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="email" className="input-label">Email:</label>
-            <input
-              type="email"
-              id="email"
-              className="login-input"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="input-group">
@@ -63,31 +54,56 @@ export function SignUpForm({ onSignUpSuccess, onSwitchToLogin }: SignUpFormProps
           </p>
         </form>
       </div>
+
+      {/* Toast rendered here */}
+      {showToast && (
+        <Toast
+          message={toastMessage}
+          type="success"
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 
-  function signUp(e: React.FormEvent<HTMLFormElement>) {
+  async function signUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (loading) return;
 
     setFormError("");
     setLoading(true);
 
-    fetch("/api/authentication/signup", {
-      method: "POST",
-      body: JSON.stringify({ username, email, password }),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Signup failed");
-        return response.json();
-      })
-      .then((data: UserDto) => onSignUpSuccess(data))
-      .catch(() => {
-        setFormError("Signup failed. Try again.");
-      })
-      .finally(() => {
-        setLoading(false);
+    const payload = {
+      username,
+      password,
+      roles: ["User"], // must match seeded role
+    };
+
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Signup failed");
+      }
+
+      setToastMessage("Signup successful! Please log in.");
+      setShowToast(true);
+
+      setTimeout(() => {
+        setShowToast(false);
+        onSwitchToLogin();
+      }, 2000);
+
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      setFormError("Signup failed. Try a different username or stronger password.");
+    } finally {
+      setLoading(false);
+    }
   }
 }
