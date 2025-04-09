@@ -1,4 +1,4 @@
-=on:
+on:
   push:
     branches:
       - master
@@ -21,7 +21,7 @@ jobs:
       - name: 🏗 Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 22.x
           cache: npm
           cache-dependency-path: Selu383.SP25.P03.Mobile/package-lock.json
 
@@ -34,7 +34,7 @@ jobs:
           packager: npm
 
       - name: 📦 Install dependencies
-        run: cd Selu383.SP25.P03.Mobile && npm install
+        run: npm install ./Selu383.SP25.P03.Mobile
 
       - name: set environment variables
         uses: allenevans/set-env@v3.0.0
@@ -42,7 +42,7 @@ jobs:
           EAS_LOCAL_BUILD_ARTIFACTS_DIR: ${{ runner.temp }}
 
       - name: 🚀 Build app
-        run: cd Selu383.SP25.P03.Mobile && eas build -p android --profile production --non-interactive --local
+        run: cd ./Selu383.SP25.P03.Mobile/ && eas build -p android --non-interactive --local
 
       - name: 🛳️ Make Release
         uses: "marvinpinto/action-automatic-releases@latest"
