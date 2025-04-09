@@ -15,7 +15,9 @@ body {
   align-items: center;
   min-height: 100vh;
 }
-
+button {
+  user-select: none;
+}
 /* Main App Container */
 #root {
   width: 100%;
