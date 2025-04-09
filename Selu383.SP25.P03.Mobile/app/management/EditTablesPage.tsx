@@ -5,13 +5,18 @@ import { useNavigation } from '@react-navigation/native';
 export default function EditTablesPage() {
   const navigation = useNavigation();
 
+  const handleNavigateToFoodMenu = () => {
+    // @ts-ignore
+    navigation.navigate('foodMenu');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Table Management</Text>
 
       <TouchableOpacity 
         style={styles.menuButton} 
-        onPress={() => navigation.navigate('FoodMenu')}
+        onPress={handleNavigateToFoodMenu}
       >
         <Text style={styles.menuButtonText}>Edit Food Menu</Text>
       </TouchableOpacity>
