@@ -10,10 +10,19 @@ interface NavbarProps {
 const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setCurrentUser(undefined);
-    navigate("/"); // Go back to homepage after logout
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/authentication/logout", {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setCurrentUser(undefined);
+      navigate("/"); //sends user to the homepage
+    }
   };
+  
 
   return (
     <nav className="navbar">
@@ -23,15 +32,14 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
       <NavLink to="/theaters" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
         Theaters
       </NavLink>
-
+      <NavLink to="/food" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            Menu
+      </NavLink>
       {/* Protected links only visible when logged in */}
       {currentUser && (
         <>
           <NavLink to="/tickets" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
             Tickets
-          </NavLink>
-          <NavLink to="/food" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-            Food
           </NavLink>
           <NavLink to="/account" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
             Account
@@ -44,7 +52,7 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
         {currentUser ? (
           <button onClick={handleLogout} className="navbar-button">Logout</button>
         ) : (
-          <NavLink to="/login" className="navbar-button">Login</NavLink>
+          <NavLink to="/login" className="navbar-button">Log in</NavLink>
         )}
       </div>
     </nav>

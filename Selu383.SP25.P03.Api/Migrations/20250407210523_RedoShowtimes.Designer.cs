@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Selu383.SP25.P03.Api.Data;
 
@@ -11,9 +12,11 @@ using Selu383.SP25.P03.Api.Data;
 namespace Selu383.SP25.P03.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250407210523_RedoShowtimes")]
+    partial class RedoShowtimes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,32 +169,6 @@ namespace Selu383.SP25.P03.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Movie");
-                });
-
-            modelBuilder.Entity("Selu383.SP25.P03.Api.Features.Seats.Seat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsBooked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SeatNumber")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
-
-                    b.Property<int>("ShowtimeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShowtimeId");
-
-                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("Selu383.SP25.P03.Api.Features.Showtimes.Showtime", b =>
@@ -400,17 +377,6 @@ namespace Selu383.SP25.P03.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Selu383.SP25.P03.Api.Features.Seats.Seat", b =>
-                {
-                    b.HasOne("Selu383.SP25.P03.Api.Features.Showtimes.Showtime", "Showtime")
-                        .WithMany()
-                        .HasForeignKey("ShowtimeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Showtime");
                 });
 
             modelBuilder.Entity("Selu383.SP25.P03.Api.Features.Showtimes.Showtime", b =>

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Selu383.SP25.P03.Api.Data;
 using Selu383.SP25.P03.Api.Features.FoodItem;
-using Selu383.SP25.P03.Api.Features.Users;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,10 +30,12 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem.Controllers
                     Name = f.Name,
                     Description = f.Description,
                     Price = f.Price,
-                    ImageUrl = f.ImageUrl
+                    ImageUrl = f.ImageUrl,
+                    Category = f.Category
                 })
                 .ToListAsync();
         }
+
 
         // GET: api/FoodItem/5
         [HttpGet("{id}")]
@@ -53,9 +54,11 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem.Controllers
                 Name = foodItem.Name,
                 Description = foodItem.Description,
                 Price = foodItem.Price,
-                ImageUrl = foodItem.ImageUrl
+                ImageUrl = foodItem.ImageUrl,
+                Category = foodItem.Category
             };
         }
+
 
         // POST: api/FoodItem
         [HttpPost]
@@ -66,7 +69,8 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem.Controllers
                 Name = foodItemDto.Name,
                 Description = foodItemDto.Description,
                 Price = foodItemDto.Price,
-                ImageUrl = foodItemDto.ImageUrl
+                ImageUrl = foodItemDto.ImageUrl,
+                Category = foodItemDto.Category
             };
 
             _context.FoodItem.Add(foodItem);
@@ -74,6 +78,7 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem.Controllers
 
             return CreatedAtAction("GetFoodItem", new { id = foodItem.Id }, foodItemDto);
         }
+
 
         // PUT: api/FoodItem/5
         [HttpPut("{id}")]
@@ -94,12 +99,14 @@ namespace Selu383.SP25.P03.Api.Features.FoodItem.Controllers
             foodItem.Description = foodItemDto.Description;
             foodItem.Price = foodItemDto.Price;
             foodItem.ImageUrl = foodItemDto.ImageUrl;
+            foodItem.Category = foodItemDto.Category;
 
             _context.Entry(foodItem).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
 
         // DELETE: api/FoodItem/5
         [HttpDelete("{id}")]
