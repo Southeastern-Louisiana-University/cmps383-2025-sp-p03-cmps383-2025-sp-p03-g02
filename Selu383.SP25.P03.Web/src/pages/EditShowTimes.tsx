@@ -6,6 +6,7 @@ interface ShowtimeDto {
   movieId: number;
   showDate: string;
   showTime: string;
+  showtimeDate: string;
   ticketPrice: number;
   theaterId: number;
 }
@@ -68,12 +69,14 @@ export function AddShowTimeForm() {
     setFormError("");
     setLoading(true);
 
+    // Combine showDate and showTime into one string (e.g. '2025-04-15T03:33')
+    const dateTimeString = `${showDate}T${showTime}`;
+
     const showtime = {
-      movieId: movieId === "" ? 0 : Number(movieId), 
-      showDate,
-      showTime,
+      movieId: movieId === "" ? 0 : Number(movieId),
+      showTimeDate: dateTimeString, 
       ticketPrice: ticketPrice === "" ? 0 : Number(ticketPrice),
-      theaterId: theaterId === "" ? 0 : Number(theaterId), 
+      theaterId: theaterId === "" ? 0 : Number(theaterId),
     };
 
     if (operation === "add") {
@@ -108,7 +111,7 @@ export function AddShowTimeForm() {
   };
 
   const handleDelete = (id: number) => {
-    fetch(`api/showtimes/${id}`, {
+    fetch(`api/showtimes/${id}`, { 
       method: "DELETE",
     })
       .then(() => {
@@ -125,6 +128,13 @@ export function AddShowTimeForm() {
     setTheaterId("");
     setSelectedShowtime(null);
     setOperation("add");
+  };
+
+  const formatShowtimeDate = (showtimeDate: string) => {
+    const dateTime = new Date(showtimeDate);
+    const date = dateTime.toLocaleDateString(); // Formats to MM/DD/YYYY
+    const time = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Formats to HH:MM AM/PM
+    return { date, time };
   };
 
   return (
@@ -153,7 +163,7 @@ export function AddShowTimeForm() {
             required
             value={movieId}
             onChange={(e) =>
-              setMovieId(e.target.value ? Number(e.target.value) : "") // Convert to number or empty string
+              setMovieId(e.target.value ? Number(e.target.value) : "")
             }
           >
             <option value="">Select Movie</option>
@@ -198,7 +208,7 @@ export function AddShowTimeForm() {
             required
             value={ticketPrice}
             onChange={(e) =>
-              setTicketPrice(e.target.value ? Number(e.target.value) : "") // Convert to number or empty string
+              setTicketPrice(e.target.value ? Number(e.target.value) : "") 
             }
           />
         </div>
@@ -211,7 +221,7 @@ export function AddShowTimeForm() {
             required
             value={theaterId}
             onChange={(e) =>
-              setTheaterId(e.target.value ? Number(e.target.value) : "") // Convert to number or empty string
+              setTheaterId(e.target.value ? Number(e.target.value) : "") 
             }
           >
             <option value="">Select Theater</option>
@@ -240,8 +250,8 @@ export function AddShowTimeForm() {
           <tr>
             <th>ID</th>
             <th>Movie Title</th>
-            <th>Show Date</th>
-            <th>Show Time</th>
+            <th>Show Date</th> {/* Separated show date column */}
+            <th>Show Time</th> {/* Separated show time column */}
             <th>Ticket Price</th>
             <th>Theater Name</th>
             <th>Actions</th>
@@ -251,12 +261,13 @@ export function AddShowTimeForm() {
           {showtimes.map((showtime) => {
             const movie = movies.find((m) => m.id === showtime.movieId);
             const theater = theaters.find((t) => t.id === showtime.theaterId);
+            const { date, time } = formatShowtimeDate(showtime.showtimeDate); // Extracted date and time
             return (
               <tr key={showtime.id}>
                 <td>{showtime.id}</td>
                 <td>{movie?.title}</td>
-                <td>{showtime.showDate}</td>
-                <td>{showtime.showTime}</td>
+                <td>{date}</td> {/* Display separated date */}
+                <td>{time}</td> {/* Display separated time */}
                 <td>${showtime.ticketPrice.toFixed(2)}</td>
                 <td>{theater?.name}</td>
                 <td>

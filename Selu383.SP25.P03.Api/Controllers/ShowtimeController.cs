@@ -13,39 +13,62 @@ namespace Selu383.SP25.P03.Api.Controllers
     [ApiController]
     public class ShowtimeController : ControllerBase
     {
-        private readonly DbSet<Showtime> showtimes;
-        private readonly DataContext dataContext;
+        private readonly DataContext _context;
 
-        public ShowtimeController(DataContext dataContext)
+        public ShowtimeController(DataContext context)
         {
-            this.dataContext = dataContext;
-            showtimes = dataContext.Set<Showtime>();
+            _context = context;
         }
 
+        // GET: api/showtimes
         [HttpGet]
-        public IQueryable<ShowtimeDto> GetAllShowtimes()
+        public async Task<ActionResult<IEnumerable<ShowtimeDto>>> GetShowtimes()
         {
-            return GetShowtimeDtos(showtimes);
+            var showtimes = await _context.Showtimes
+                .Select(x => new ShowtimeDto
+                {
+                    Id = x.Id,
+                    MovieId = x.MovieId,
+                    ShowtimeDate = x.ShowtimeDate,
+                    TicketPrice = x.TicketPrice,
+                    TheaterId = x.TheaterId
+                })
+                .ToListAsync();
+
+            return showtimes;
         }
 
+        // GET: api/showtimes/5
         [HttpGet("{id}")]
-        public ActionResult<ShowtimeDto> GetShowtimeById(int id)
+        public async Task<ActionResult<ShowtimeDto>> GetShowtimeById(int id)
         {
-            var result = GetShowtimeDtos(showtimes.Where(x => x.Id == id)).FirstOrDefault();
-            if (result == null)
+            var showtime = await _context.Showtimes
+                .Where(x => x.Id == id)
+                .Select(x => new ShowtimeDto
+                {
+                    Id = x.Id,
+                    MovieId = x.MovieId,
+                    ShowtimeDate = x.ShowtimeDate,
+                    TicketPrice = x.TicketPrice,
+                    TheaterId = x.TheaterId
+                })
+                .FirstOrDefaultAsync();
+
+            if (showtime == null)
             {
                 return NotFound();
             }
 
-            return Ok(result);
+            return showtime;
         }
 
+        // POST: api/showtimes
         [HttpPost]
-        public ActionResult<ShowtimeDto> CreateShowtime(ShowtimeDto dto)
+        public async Task<ActionResult<ShowtimeDto>> CreateShowtime(ShowtimeDto dto)
         {
             if (IsInvalid(dto))
             {
-                return BadRequest();
+                return BadRequest("Invalid input data");
             }
 
             var showtime = new Showtime
@@ -55,22 +78,25 @@ namespace Selu383.SP25.P03.Api.Controllers
                 TicketPrice = dto.TicketPrice,
                 TheaterId = dto.TheaterId
             };
-            showtimes.Add(showtime);
-            dataContext.SaveChanges();
+
+            _context.Showtimes.Add(showtime);
+            await _context.SaveChangesAsync();
 
             dto.Id = showtime.Id;
+
             return CreatedAtAction(nameof(GetShowtimeById), new { id = dto.Id }, dto);
         }
 
+        // PUT: api/showtimes/5
         [HttpPut("{id}")]
-        public ActionResult<ShowtimeDto> UpdateShowtime(int id, ShowtimeDto dto)
+        public async Task<ActionResult<ShowtimeDto>> UpdateShowtime(int id, ShowtimeDto dto)
         {
             if (IsInvalid(dto))
             {
-                return BadRequest();
+                return BadRequest("Invalid input data");
             }
 
-            var showtime = showtimes.FirstOrDefault(x => x.Id == id);
+            var showtime = await _context.Showtimes.FindAsync(id);
             if (showtime == null)
             {
                 return NotFound();
@@ -81,43 +107,33 @@ namespace Selu383.SP25.P03.Api.Controllers
             showtime.TicketPrice = dto.TicketPrice;
             showtime.TheaterId = dto.TheaterId;
 
-            dataContext.SaveChanges();
+            await _context.SaveChangesAsync();
+
             return Ok(dto);
         }
 
+        // DELETE: api/showtimes/5
         [HttpDelete("{id}")]
-        public ActionResult DeleteShowtime(int id)
+        public async Task<IActionResult> DeleteShowtime(int id)
         {
-            var showtime = showtimes.FirstOrDefault(x => x.Id == id);
+            var showtime = await _context.Showtimes.FindAsync(id);
             if (showtime == null)
             {
                 return NotFound();
             }
 
-            showtimes.Remove(showtime);
-            dataContext.SaveChanges();
-            return Ok();
+            _context.Showtimes.Remove(showtime);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool IsInvalid(ShowtimeDto dto)
         {
-            return dto.MovieId <= 0 ||
-                   dto.ShowtimeDate == default ||
-                   dto.TicketPrice <= 0 ||
+            return dto.MovieId <= 0 || 
+                   dto.ShowtimeDate == default || 
+                   dto.TicketPrice <= 0 || 
                    dto.TheaterId <= 0;
-        }
-
-        private static IQueryable<ShowtimeDto> GetShowtimeDtos(IQueryable<Showtime> showtimes)
-        {
-            return showtimes
-                .Select(x => new ShowtimeDto
-                {
-                    Id = x.Id,
-                    MovieId = x.MovieId,
-                    ShowtimeDate = x.ShowtimeDate,
-                    TicketPrice = x.TicketPrice,
-                    TheaterId = x.TheaterId
-                });
         }
     }
 }

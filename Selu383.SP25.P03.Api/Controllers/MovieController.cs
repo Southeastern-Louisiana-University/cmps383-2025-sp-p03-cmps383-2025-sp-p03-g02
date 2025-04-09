@@ -36,7 +36,7 @@ namespace Selu383.SP25.P03.Api.Features.Movies.Controllers
         }
 
 
-        // GET: api/Movie/5
+        // GET: api/movie/5
         [HttpGet("{id}")]
         public async Task<ActionResult<MovieDto>> GetMovie(int id)
         {
@@ -58,7 +58,7 @@ namespace Selu383.SP25.P03.Api.Features.Movies.Controllers
         }
 
 
-        // POST: api/Movie
+        // POST: api/movie
         [HttpPost]
         public async Task<ActionResult<MovieDto>> PostMovie(MovieDto movieDto)
         {
@@ -77,7 +77,7 @@ namespace Selu383.SP25.P03.Api.Features.Movies.Controllers
         }
 
 
-        // PUT: api/Movie/5
+        // PUT: api/movie/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMovie(int id, MovieDto movieDto)
         {
@@ -104,7 +104,7 @@ namespace Selu383.SP25.P03.Api.Features.Movies.Controllers
         }
 
 
-        // DELETE: api/Movie/5
+        // DELETE: api/movie/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
