@@ -123,6 +123,50 @@ export function AddSeatForm() {
     setOperation("add");
   };
 
+  const generateSeatsForAllShowtimes = async () => {
+    const rows = "ABCDEFG"; // A–G 70 seats total
+    const cols = 10; // 1–10
+
+    setLoading(true);
+    setFormError("");
+
+    try {
+      for (const showtime of showtimes) {
+        // Check if seats already exist for this showtime
+        const existingSeats = seats.filter((seat) => seat.showtimeId === showtime.id);
+        const existingSeatNumbers = existingSeats.map((seat) => seat.seatNumber);
+
+        for (let r = 0; r < rows.length; r++) {
+          for (let c = 1; c <= cols; c++) {
+            const seatNumber = `${rows[r]}${c}`;
+
+            // Skip if the seat already exists
+            if (existingSeatNumbers.includes(seatNumber)) continue;
+
+            const seat: SeatDto = {
+              seatNumber,
+              showtimeId: showtime.id,
+              isBooked: false,
+            };
+
+            await fetch("api/seats", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(seat),
+            });
+          }
+        }
+      }
+
+      fetchSeats(); 
+      alert("Seats generated for all showtimes.");
+    } catch (err) {
+      setFormError("Failed to generate seats.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="seat-menu">
       <h1>Manage Seats</h1>
@@ -180,6 +224,10 @@ export function AddSeatForm() {
           {loading ? "Processing..." : operation === "add" ? "Add Seat" : "Update Seat"}
         </button>
       </form>
+
+      <button onClick={generateSeatsForAllShowtimes} disabled={loading}>
+        {loading ? "Generating..." : "Generate Seats for All Showtimes"}
+      </button>
 
       <h2>Seat List</h2>
       <table>
