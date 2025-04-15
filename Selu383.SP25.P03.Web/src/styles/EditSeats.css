@@ -84,3 +84,37 @@ td img {
     max-height: 50px;
     border-radius: 4px;
 }
+
+.grid-view .showtime-grid {
+    margin-bottom: 20px;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);  /* Adjust number of columns */
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .seat-block {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .available {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .booked {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  button {
+    margin: 10px 0;
+  }
+  
+  

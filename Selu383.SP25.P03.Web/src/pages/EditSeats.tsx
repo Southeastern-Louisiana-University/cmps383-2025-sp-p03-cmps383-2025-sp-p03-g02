@@ -24,12 +24,13 @@ export function AddSeatForm() {
   const [showtimes, setShowtimes] = useState<ShowtimeDto[]>([]);
   const [movies, setMovies] = useState<MovieDto[]>([]);
   const [seatNumber, setSeatNumber] = useState("");
-  const [showtimeId, setShowtimeId] = useState<number | "">("");
+  const [showtimeId, setShowtimeId] = useState<number | null>(null);
   const [isBooked, setIsBooked] = useState(true);
   const [operation, setOperation] = useState("add");
   const [selectedSeat, setSelectedSeat] = useState<SeatDto | null>(null);
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isGridView, setIsGridView] = useState(false);  // Track whether grid view is active
 
   useEffect(() => {
     fetchSeats();
@@ -72,7 +73,7 @@ export function AddSeatForm() {
 
     const seat: SeatDto = {
       seatNumber,
-      showtimeId: showtimeId === "" ? 0 : Number(showtimeId),
+      showtimeId: showtimeId ?? 0, // ensure showtimeId is never null
       isBooked,
     };
 
@@ -117,14 +118,14 @@ export function AddSeatForm() {
 
   const resetForm = () => {
     setSeatNumber("");
-    setShowtimeId("");
+    setShowtimeId(null);
     setIsBooked(true);
     setSelectedSeat(null);
     setOperation("add");
   };
 
   const generateSeatsForAllShowtimes = async () => {
-    const rows = "ABCDEFG"; // A–G 70 seats total
+    const rows = "ABCDEFG"; // A–G 70 seats
     const cols = 10; // 1–10
 
     setLoading(true);
@@ -132,15 +133,12 @@ export function AddSeatForm() {
 
     try {
       for (const showtime of showtimes) {
-        // Check if seats already exist for this showtime
         const existingSeats = seats.filter((seat) => seat.showtimeId === showtime.id);
         const existingSeatNumbers = existingSeats.map((seat) => seat.seatNumber);
 
         for (let r = 0; r < rows.length; r++) {
           for (let c = 1; c <= cols; c++) {
             const seatNumber = `${rows[r]}${c}`;
-
-            // Skip if the seat already exists
             if (existingSeatNumbers.includes(seatNumber)) continue;
 
             const seat: SeatDto = {
@@ -158,7 +156,7 @@ export function AddSeatForm() {
         }
       }
 
-      fetchSeats(); 
+      fetchSeats();
       alert("Seats generated for all showtimes.");
     } catch (err) {
       setFormError("Failed to generate seats.");
@@ -167,9 +165,18 @@ export function AddSeatForm() {
     }
   };
 
+  const toggleGridView = () => {
+    setIsGridView(!isGridView);
+  };
+
   return (
     <div className="seat-menu">
       <h1>Manage Seats</h1>
+
+      <button onClick={toggleGridView}>
+        {isGridView ? "Switch to List View" : "Switch to Grid View"}
+      </button>
+
       <form className="form-example" onSubmit={handleFormSubmit}>
         <div className="form-example">
           <label>Operation</label>
@@ -193,9 +200,9 @@ export function AddSeatForm() {
           <label>Showtime</label>
           <select
             required
-            value={showtimeId}
+            value={showtimeId ?? ""}
             onChange={(e) =>
-              setShowtimeId(e.target.value ? Number(e.target.value) : "")
+              setShowtimeId(e.target.value ? Number(e.target.value) : null)
             }
           >
             <option value="">Select Showtime</option>
@@ -230,10 +237,42 @@ export function AddSeatForm() {
       </button>
 
       <h2>Seat List</h2>
-      <table>
-        <thead>
+
+      {isGridView ? (
+        <div className="grid-view">
+          {showtimes.map((showtime) => {
+            const showtimeSeats = seats.filter(
+              (seat) => seat.showtimeId === showtime.id
+            );
+            return (
+              <div key={showtime.id} className="showtime-grid">
+                <h3>{getMovieTitle(showtime.movieId)} - {new Date(showtime.showtimeDate).toLocaleString()}</h3>
+                <div className="grid-container">
+                  {showtimeSeats.map((seat) => (
+                    <div
+                      key={seat.id}
+                      className={`seat-block ${seat.isBooked ? "booked" : "available"}`}
+                      onClick={() => {
+                        setOperation("edit");
+                        setSelectedSeat(seat);
+                        setSeatNumber(seat.seatNumber);
+                        setShowtimeId(seat.showtimeId);
+                        setIsBooked(seat.isBooked);
+                      }}
+                    >
+                      {seat.seatNumber}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <table>
+          <thead>
           <tr>
-            <th>ID</th>
+            <th>ID</th> 
             <th>Seat Number</th>
             <th>Showtime</th>
             <th>Booked</th>
@@ -241,39 +280,41 @@ export function AddSeatForm() {
           </tr>
         </thead>
         <tbody>
-          {seats.map((seat) => {
-            const showtime = showtimes.find((s) => s.id === seat.showtimeId);
-            const title = showtime ? getMovieTitle(showtime.movieId) : "N/A";
-            const time = showtime
-              ? new Date(showtime.showtimeDate).toLocaleString()
-              : "";
-            return (
-              <tr key={seat.id}>
-                <td>{seat.id}</td>
-                <td>{seat.seatNumber}</td>
-                <td>{showtime ? `${title} — ${time}` : "N/A"}</td>
-                <td>{seat.isBooked ? "Yes" : "No"}</td>
-                <td>
-                  <button
-                    onClick={() => {
-                      setOperation("edit");
-                      setSelectedSeat(seat);
-                      setSeatNumber(seat.seatNumber);
-                      setShowtimeId(seat.showtimeId);
-                      setIsBooked(seat.isBooked);
-                    }}
-                  >
+          {seats.map((seat) => (
+            <tr key={seat.id}>
+              <td>{seat.id}</td> 
+              <td>{seat.seatNumber}</td>
+              <td>
+                {showtimes
+                  .filter((showtime) => showtime.id === seat.showtimeId)
+                  .map((showtime) => (
+                    <div key={showtime.id}>
+                      {`${getMovieTitle(showtime.movieId)} — ${new Date(
+                        showtime.showtimeDate
+                      ).toLocaleString()}`}
+                    </div>
+                  ))}
+              </td>
+              <td>{seat.isBooked ? "Yes" : "No"}</td>
+              <td>
+                <button
+                  onClick={() => {
+                    setOperation("edit");
+                    setSelectedSeat(seat);
+                    setSeatNumber(seat.seatNumber);
+                    setShowtimeId(seat.showtimeId);
+                    setIsBooked(seat.isBooked);
+                  }}
+                >
                     Edit
                   </button>
-                  <button onClick={() => seat.id && handleDelete(seat.id)}>
-                    Delete
-                  </button>
+                  <button onClick={() => seat.id && handleDelete(seat.id)}>Delete</button>
                 </td>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
