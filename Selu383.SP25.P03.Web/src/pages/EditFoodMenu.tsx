@@ -23,7 +23,6 @@ export function AddFoodItemForm() {
   const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItemDto | null>(null);
 
   useEffect(() => {
-    // Fetch food items from the API to populate the table
     fetchFoodItems();
   }, []);
 
@@ -46,7 +45,7 @@ export function AddFoodItemForm() {
     const foodItem = { name, description, price, imageUrl, category };
 
     if (operation === "add") {
-      // Add food item
+  
       fetch("api/fooditem", {
         method: "POST",
         body: JSON.stringify(foodItem),
@@ -62,7 +61,7 @@ export function AddFoodItemForm() {
 
 
     } else if (operation === "edit" && selectedFoodItem?.id) {
-      // Update food item
+    
       fetch(`api/fooditem/${selectedFoodItem.id}`, {
         method: "PUT",
         body: JSON.stringify({ ...foodItem, id: selectedFoodItem.id }),
@@ -70,7 +69,7 @@ export function AddFoodItemForm() {
       })
         .then((response) => response.json())
         .then(() => {
-          // Update the foodItems array with the modified food item
+         
           const updatedItems = foodItems.map((item) =>
             item.id === selectedFoodItem.id ? { ...selectedFoodItem, ...foodItem } : item
           );

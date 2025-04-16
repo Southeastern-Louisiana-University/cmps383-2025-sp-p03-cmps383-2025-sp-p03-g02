@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../styles/EditShowTimes.css";
+import "../styles/EditTicket.css";
 
 interface TicketDto {
   id?: number;
@@ -22,8 +22,9 @@ interface ShowtimeDto {
 interface SeatDto {
   id: number;
   isBooked: boolean;
-  row: number;
-  column: number;
+  showtimeId: number;
+  seatNumber: string;
+  
 }
 
 interface TheaterDto {
@@ -141,40 +142,6 @@ export function AddTicketForm() {
     return { date, time };
   };
 
-  const renderSeatGrid = () => {
-    const rows = 7; // Adjust based on your theater's row count
-    const columns = 10; // Adjust based on your theater's column count
-    const seatGrid = [];
-    for (let row = 1; row <= rows; row++) {
-      const seatRow = [];
-      for (let col = 1; col <= columns; col++) {
-        const seat = seats.find((s) => s.row === row && s.column === col);
-        if (seat) {
-          seatRow.push(
-            <button
-              key={seat.id}
-              className={`seat ${seat.isBooked ? "booked" : "available"}`}
-              onClick={() => handleSeatClick(seat)}
-              disabled={seat.isBooked}
-            >
-              {seat.row}-{seat.column}
-            </button>
-          );
-        }
-      }
-      seatGrid.push(
-        <div key={row} className="seat-row">
-          {seatRow}
-        </div>
-      );
-    }
-    return seatGrid;
-  };
-
-  const handleSeatClick = (seat: SeatDto) => {
-    setSeatId(seat.id); 
-  };
-
   return (
     <div className="ticket-form">
       <h1>Manage Tickets</h1>
@@ -212,10 +179,31 @@ export function AddTicketForm() {
           </select>
         </div>
 
-        <div className="form-example">
-          <label htmlFor="seatId">Seat: </label>
-          <div className="seat-grid">{renderSeatGrid()}</div>
-        </div>
+        {showtimeId !== "" && (
+          <div className="form-example">
+            <label>Seat: </label>
+            <div className="grid-container">
+              {seats
+                .filter((seat) => seat.showtimeId === showtimeId)
+                .map((seat) => (
+                  <div
+                    key={seat.id}
+                    className={`seat-block ${
+                      seat.isBooked ? "booked" : "available"
+                    } ${seatId === seat.id ? "selected" : ""}`}
+                    onClick={() => {
+                      if (!seat.isBooked) {
+                        setSeatId(seat.id);
+                      }
+                    }}
+                  >
+                    {seat.seatNumber}
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
 
         <div className="form-example">
           <label htmlFor="paymentMethod">Payment Method: </label>
