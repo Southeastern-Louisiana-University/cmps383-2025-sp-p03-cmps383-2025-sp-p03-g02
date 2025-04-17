@@ -24,7 +24,6 @@ interface SeatDto {
   isBooked: boolean;
   showtimeId: number;
   seatNumber: string;
-  
 }
 
 interface TheaterDto {
@@ -43,26 +42,28 @@ export function AddTicketForm() {
   const [seats, setSeats] = useState<SeatDto[]>([]);
   const [theaters, setTheaters] = useState<TheaterDto[]>([]);
   const [movies, setMovies] = useState<MovieDto[]>([]);
-  const [userId, setUserId] = useState<number | "">(""); // Will be set dynamically from logged-in user
+  const [userId, setUserId] = useState<number | "">("");
   const [showtimeId, setShowtimeId] = useState<number | "">("");
   const [seatId, setSeatId] = useState<number | "">("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [operation, setOperation] = useState<"add" | "edit">("add");
+  const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
-    setUserId(currentUser); // Set the user ID
+    setUserId(currentUser);
 
     fetchShowtimes();
     fetchSeats();
     fetchTheaters();
     fetchMovies();
-    fetchTickets(); 
+    fetchTickets();
   }, []);
 
   const getCurrentUser = () => {
-    return 1; // Example: assuming user ID 1 is logged in
+    return 1;
   };
 
   const fetchShowtimes = () => {
@@ -100,12 +101,43 @@ export function AddTicketForm() {
       .catch(() => setFormError("Failed to fetch tickets"));
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const updateSeatBooking = async (seatId: number, isBooked: boolean) => {
+    try {
+      const seat = seats.find((s) => s.id === seatId);
+      if (!seat) {
+        throw new Error("Seat not found");
+      }
+      const response = await fetch(`api/seats/${seatId}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          id: seatId,
+          isBooked,
+          showtimeId: seat.showtimeId,
+          seatNumber: seat.seatNumber,
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update seat booking: ${errorText}`);
+      }
+      // Refresh seats to ensure state is in sync
+      await fetchSeats();
+    } catch (error: any) {
+      setFormError(error.message || "Failed to update seat booking");
+      throw error;
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
 
     setFormError("");
     setLoading(true);
+
+    // Refresh seats to ensure latest booking status
+    await fetchSeats();
 
     const ticket = {
       userId: userId === "" ? 0 : Number(userId),
@@ -114,21 +146,109 @@ export function AddTicketForm() {
       paymentMethod: paymentMethod,
     };
 
-    fetch("api/tickets", {
-      method: "POST",
-      body: JSON.stringify(ticket),
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setTickets((prevTickets) => [...prevTickets, data]); 
-        resetForm();
-      })
-      .catch(() => setFormError("Failed to create ticket"))
-      .finally(() => setLoading(false));
+    try {
+      if (operation === "edit" && editingTicketId) {
+        const oldTicket = tickets.find((t) => t.id === editingTicketId);
+        if (oldTicket && oldTicket.seatId !== ticket.seatId) {
+          // Unbook the old seat first
+          await updateSeatBooking(oldTicket.seatId, false);
+        }
+        // Book the new seat
+        await updateSeatBooking(ticket.seatId, true);
+
+        // Update the ticket
+        const response = await fetch(`api/tickets/${editingTicketId}`, {
+          method: "PUT",
+          body: JSON.stringify(ticket),
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) {
+          // Rollback seat booking if ticket update fails
+          if (oldTicket && oldTicket.seatId !== ticket.seatId) {
+            await updateSeatBooking(ticket.seatId, false);
+            await updateSeatBooking(oldTicket.seatId, true);
+          }
+          const errorText = await response.text();
+          throw new Error(`Failed to update ticket: ${errorText}`);
+        }
+        const updatedTicket = await response.json();
+        setTickets((prevTickets) =>
+          prevTickets.map((t) =>
+            t.id === editingTicketId ? updatedTicket : t
+          )
+        );
+      } else {
+        // Check if the selected seat is available
+        const selectedSeat = seats.find((s) => s.id === ticket.seatId);
+        if (!selectedSeat) {
+          throw new Error("Selected seat not found");
+        }
+        if (selectedSeat.isBooked) {
+          throw new Error("Selected seat is already booked");
+        }
+
+        // For add operation, rely on backend to book the seat
+        const response = await fetch("api/tickets", {
+          method: "POST",
+          body: JSON.stringify(ticket),
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to create ticket: ${errorText}`);
+        }
+        const newTicket = await response.json();
+        setTickets((prevTickets) => [...prevTickets, newTicket]);
+        // Refresh seats to reflect backend changes
+        await fetchSeats();
+      }
+      resetForm();
+    } catch (error: any) {
+      setFormError(error.message || `Failed to ${operation === "add" ? "create" : "update"} ticket`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (ticket: TicketDto) => {
+    setOperation("edit");
+    setEditingTicketId(ticket.id || null);
+    setUserId(ticket.userId);
+    setShowtimeId(ticket.showtimeId);
+    setSeatId(ticket.seatId);
+    setPaymentMethod(ticket.paymentMethod);
+  };
+
+  const handleDelete = async (ticketId: number, seatId: number) => {
+    if (loading) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this ticket?");
+    if (!confirmDelete) return;
+
+    setLoading(true);
+
+    try {
+      await updateSeatBooking(seatId, false);
+      const response = await fetch(`api/tickets/${ticketId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete ticket: ${errorText}`);
+      }
+      setTickets((prevTickets) =>
+        prevTickets.filter((ticket) => ticket.id !== ticketId)
+      );
+    } catch (error: any) {
+      setFormError(error.message || "Failed to delete ticket");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
+    setOperation("add");
+    setEditingTicketId(null);
     setUserId("");
     setShowtimeId("");
     setSeatId("");
@@ -136,15 +256,43 @@ export function AddTicketForm() {
   };
 
   const formatShowtimeDate = (showtimeDate: string) => {
-    const dateTime = new Date(showtimeDate);
-    const date = dateTime.toLocaleDateString();
-    const time = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return { date, time };
+    try {
+      const dateTime = new Date(showtimeDate);
+      
+      const date = dateTime.toLocaleDateString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      const time = dateTime.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
+      return { date, time };
+    } catch (error) {
+      console.error("Error formatting showtime date:", error);
+      return { date: "Invalid Date", time: "Invalid Time" };
+    }
   };
 
   return (
     <div className="ticket-form">
       <h1>Manage Tickets</h1>
+      <div className="form-example">
+        <label htmlFor="operation">Operation: </label>
+        <select
+          id="operation"
+          value={operation}
+          onChange={(e) => setOperation(e.target.value as "add" | "edit")}
+        >
+          <option value="add">Add Ticket</option>
+          <option value="edit">Edit Ticket</option>
+        </select>
+      </div>
+
       <form className="form-example" onSubmit={handleFormSubmit}>
         <div className="form-example">
           <label htmlFor="userId">User ID: </label>
@@ -154,7 +302,9 @@ export function AddTicketForm() {
             id="userId"
             required
             value={userId}
-            onChange={(e) => setUserId(e.target.value ? Number(e.target.value) : "")}
+            onChange={(e) =>
+              setUserId(e.target.value ? Number(e.target.value) : "")
+            }
           />
         </div>
 
@@ -165,14 +315,19 @@ export function AddTicketForm() {
             id="showtimeId"
             required
             value={showtimeId}
-            onChange={(e) => setShowtimeId(e.target.value ? Number(e.target.value) : "")}
+            onChange={(e) =>
+              setShowtimeId(e.target.value ? Number(e.target.value) : "")
+            }
           >
             <option value="">Select Showtime</option>
             {showtimes.map((showtime) => {
-              const movie = movies.find((movie) => movie.id === showtime.movieId);
+              const movie = movies.find(
+                (movie) => movie.id === showtime.movieId
+              );
+              const { date, time } = formatShowtimeDate(showtime.showtimeDate);
               return (
                 <option key={showtime.id} value={showtime.id}>
-                  {movie?.title} - {showtime.showDate} {showtime.showTime}
+                  {movie?.title} - {date} {time}
                 </option>
               );
             })}
@@ -204,7 +359,6 @@ export function AddTicketForm() {
           </div>
         )}
 
-
         <div className="form-example">
           <label htmlFor="paymentMethod">Payment Method: </label>
           <input
@@ -217,12 +371,18 @@ export function AddTicketForm() {
           />
         </div>
 
-        {formError ? <p style={{ color: "red" }}>{formError}</p> : null}
+        {formError && <p style={{ color: "red" }}>{formError}</p>}
 
         <div className="form-example">
           <input
             type="submit"
-            value={loading ? "Loading..." : "Create Ticket"}
+            value={
+              loading
+                ? "Loading..."
+                : operation === "add"
+                ? "Create Ticket"
+                : "Update Ticket"
+            }
             disabled={loading}
           />
         </div>
@@ -245,21 +405,37 @@ export function AddTicketForm() {
         <tbody>
           {tickets.map((ticket) => {
             const showtime = showtimes.find((s) => s.id === ticket.showtimeId);
-            const theater = showtime ? theaters.find((t) => t.id === showtime.theaterId) : undefined;
-            const movie = showtime ? movies.find((m) => m.id === showtime.movieId) : undefined;
-            const { date, time } = showtime ? formatShowtimeDate(showtime.showDate) : { date: "", time: "" };
+            const theater = showtime
+              ? theaters.find((t) => t.id === showtime.theaterId)
+              : undefined;
+            const movie = showtime
+              ? movies.find((m) => m.id === showtime.movieId)
+              : undefined;
+            const seat = seats.find((s) => s.id === ticket.seatId);
+            const { date, time } = showtime
+              ? formatShowtimeDate(showtime.showtimeDate)
+              : { date: "", time: "" };
             return (
               <tr key={ticket.id}>
                 <td>{ticket.id}</td>
                 <td>{ticket.userId}</td>
-                <td>{movie?.title} - {date} {time}</td>
-                <td>{ticket.seatId}</td>
+                <td>
+                  {movie?.title} - {date} {time}
+                </td>
+                <td>
+                  {seat ? `${seat.seatNumber} (ID: ${ticket.seatId})` : ticket.seatId}
+                </td>
                 <td>{ticket.paymentMethod}</td>
                 <td>{theater?.name}</td>
                 <td>${showtime?.ticketPrice?.toFixed(2)}</td>
                 <td>
-                  <button onClick={() => alert("Ticket edited")}>Edit</button>
-                  <button onClick={() => alert("Ticket deleted")}>Delete</button>
+                  <button onClick={() => handleEdit(ticket)}>Edit</button>
+                  <button
+                    onClick={() => ticket.id && handleDelete(ticket.id, ticket.seatId)}
+                    disabled={loading}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             );
