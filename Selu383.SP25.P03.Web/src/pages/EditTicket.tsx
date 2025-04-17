@@ -42,7 +42,7 @@ export function AddTicketForm() {
   const [seats, setSeats] = useState<SeatDto[]>([]);
   const [theaters, setTheaters] = useState<TheaterDto[]>([]);
   const [movies, setMovies] = useState<MovieDto[]>([]);
-  const [userId, setUserId] = useState<number | "">("");
+  const [userId, setUserId] = useState<number | "">("");            //placeholder do prop
   const [showtimeId, setShowtimeId] = useState<number | "">("");
   const [seatId, setSeatId] = useState<number | "">("");
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -52,7 +52,7 @@ export function AddTicketForm() {
   const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
+    const currentUser = getCurrentUser();    
     setUserId(currentUser);
 
     fetchShowtimes();
@@ -62,7 +62,7 @@ export function AddTicketForm() {
     fetchTickets();
   }, []);
 
-  const getCurrentUser = () => {
+  const getCurrentUser = () => {            //placeholder
     return 1;
   };
 
@@ -121,7 +121,6 @@ export function AddTicketForm() {
         const errorText = await response.text();
         throw new Error(`Failed to update seat booking: ${errorText}`);
       }
-      // Refresh seats to ensure state is in sync
       await fetchSeats();
     } catch (error: any) {
       setFormError(error.message || "Failed to update seat booking");
@@ -136,7 +135,6 @@ export function AddTicketForm() {
     setFormError("");
     setLoading(true);
 
-    // Refresh seats to ensure latest booking status
     await fetchSeats();
 
     const ticket = {
@@ -150,20 +148,16 @@ export function AddTicketForm() {
       if (operation === "edit" && editingTicketId) {
         const oldTicket = tickets.find((t) => t.id === editingTicketId);
         if (oldTicket && oldTicket.seatId !== ticket.seatId) {
-          // Unbook the old seat first
           await updateSeatBooking(oldTicket.seatId, false);
         }
-        // Book the new seat
         await updateSeatBooking(ticket.seatId, true);
 
-        // Update the ticket
         const response = await fetch(`api/tickets/${editingTicketId}`, {
           method: "PUT",
           body: JSON.stringify(ticket),
           headers: { "Content-Type": "application/json" },
         });
         if (!response.ok) {
-          // Rollback seat booking if ticket update fails
           if (oldTicket && oldTicket.seatId !== ticket.seatId) {
             await updateSeatBooking(ticket.seatId, false);
             await updateSeatBooking(oldTicket.seatId, true);
@@ -178,7 +172,6 @@ export function AddTicketForm() {
           )
         );
       } else {
-        // Check if the selected seat is available
         const selectedSeat = seats.find((s) => s.id === ticket.seatId);
         if (!selectedSeat) {
           throw new Error("Selected seat not found");
@@ -187,7 +180,6 @@ export function AddTicketForm() {
           throw new Error("Selected seat is already booked");
         }
 
-        // For add operation, rely on backend to book the seat
         const response = await fetch("api/tickets", {
           method: "POST",
           body: JSON.stringify(ticket),
@@ -199,7 +191,6 @@ export function AddTicketForm() {
         }
         const newTicket = await response.json();
         setTickets((prevTickets) => [...prevTickets, newTicket]);
-        // Refresh seats to reflect backend changes
         await fetchSeats();
       }
       resetForm();
