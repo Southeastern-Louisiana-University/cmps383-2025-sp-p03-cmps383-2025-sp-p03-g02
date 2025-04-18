@@ -3,10 +3,12 @@ import {
   StyleSheet, 
   FlatList, 
   TouchableOpacity, 
+  TouchableWithoutFeedback,
   View, 
   Modal, 
   Text, 
-  Image 
+  Image,
+  Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -28,7 +30,7 @@ const TICKETS: Ticket[] = [
     id: 't1', 
     movieTitle: 'The Dark Knight', 
     theater: "Lion's Den New York", 
-    date: 'April 15, 2025', 
+    date: 'May  7, 2025', 
     time: '7:30 PM',
     seats: 'G7, G8'
   },
@@ -36,7 +38,7 @@ const TICKETS: Ticket[] = [
     id: 't2', 
     movieTitle: 'Inception', 
     theater: "Lion's Den New Orleans", 
-    date: 'April 22, 2025', 
+    date: 'May 15, 2025', 
     time: '8:00 PM',
     seats: 'D5'
   },
@@ -44,7 +46,7 @@ const TICKETS: Ticket[] = [
     id: 't3', 
     movieTitle: 'Dune: Part Two', 
     theater: "Lion's Den Los Angeles", 
-    date: 'May 5, 2025', 
+    date: 'June 24, 2025', 
     time: '6:45 PM',
     seats: 'J12, J13, J14'
   }
@@ -56,8 +58,18 @@ export default function TicketsScreen() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   const handleViewTicket = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setModalVisible(true);
+    try {
+      setTimeout(() => {
+        setSelectedTicket(ticket);
+        setModalVisible(true);
+      }, 100);
+    } catch (error) {
+      console.error('Error opening ticket:', error);
+      Alert.alert(
+        "Ticket Details",
+        `Movie: ${ticket.movieTitle}\nTheater: ${ticket.theater}\nDate: ${ticket.date} at ${ticket.time}\nSeats: ${ticket.seats}\nTicket ID: ${ticket.id.toUpperCase()}`
+      );
+    }
   };
 
   const closeModal = () => {
@@ -71,12 +83,10 @@ export default function TicketsScreen() {
 
   return (
     <View style={styles.container}>
-      {}
       <View style={styles.fixedHeader}>
         <Text style={styles.pageTitle}>My Tickets</Text>
       </View>
       
-      {}
       <View style={styles.content}>
         {TICKETS.length > 0 ? (
           <FlatList
@@ -87,6 +97,7 @@ export default function TicketsScreen() {
               <TouchableOpacity 
                 style={styles.ticketItem}
                 onPress={() => handleViewTicket(item)}
+                activeOpacity={0.7}
               >
                 <Text style={styles.movieTitle}>{item.movieTitle}</Text>
                 <Text style={styles.ticketDetails}>{item.theater}</Text>
@@ -99,6 +110,7 @@ export default function TicketsScreen() {
                   <TouchableOpacity 
                     style={styles.button}
                     onPress={() => handleViewTicket(item)}
+                    activeOpacity={0.7}
                   >
                     <Text style={styles.buttonText}>View Ticket</Text>
                   </TouchableOpacity>
@@ -112,6 +124,7 @@ export default function TicketsScreen() {
             <TouchableOpacity 
               style={styles.browseButton}
               onPress={() => router.push('/movies')}
+              activeOpacity={0.7}
             >
               <Text style={styles.buttonText}>Browse Movies</Text>
             </TouchableOpacity>
@@ -119,26 +132,23 @@ export default function TicketsScreen() {
         )}
       </View>
 
-      {/* Ticket Modal */}
+      {/*Ticket Modal*/}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={closeModal}
-        >
-          <View 
-            style={styles.modalContent}
-            onStartShouldSetResponder={() => true}
-            onTouchEnd={(e) => e.stopPropagation()}
-          >
+        <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback onPress={closeModal}>
+            <View style={styles.modalBackdrop} />
+          </TouchableWithoutFeedback>
+          
+          <View style={styles.modalContent}>
             <TouchableOpacity 
               style={styles.closeButton} 
               onPress={closeModal}
+              hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
             >
               <IconSymbol name="xmark" size={24} color="#4A6375" />
             </TouchableOpacity>
@@ -197,11 +207,12 @@ export default function TicketsScreen() {
             <TouchableOpacity 
               style={styles.doneButton}
               onPress={closeModal}
+              activeOpacity={0.7}
             >
               <Text style={styles.doneButtonText}>Done</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </View>
   );
@@ -315,6 +326,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   modalContent: {
     width: '100%',

@@ -144,20 +144,47 @@ export default function TheatersScreen() {
   const handleGetDirections = () => {
     if (!nearestTheater) return;
     
-    const address = encodeURIComponent(nearestTheater.address);
-    const url = Platform.select({
-      ios: `maps:q=${address}`,
-      android: `google.navigation:q=${nearestTheater.location.lat},${nearestTheater.location.lng}`,
-      default: `https://www.google.com/maps/search/?api=1&query=${address}`
-    });
-    
-    Linking.canOpenURL(url).then(supported => {
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        console.log("Don't know how to open URI: " + url);
-      }
-    });
+    try {
+      const address = encodeURIComponent(nearestTheater.address);
+      const lat = nearestTheater.location.lat;
+      const lng = nearestTheater.location.lng;
+      const name = encodeURIComponent(nearestTheater.name);
+      
+      const mapUrls = [
+        `geo:0,0?q=${lat},${lng}(${name})`,
+        `google.navigation:q=${lat},${lng}`,
+        `waze://?ll=${lat},${lng}&navigate=yes`,
+        `https://www.google.com/maps/search/?api=1&query=${address}`
+      ];
+      
+      const tryNextUrl = (index: number) => {
+        if (index >= mapUrls.length) {
+          Alert.alert(
+            "Navigation Error",
+            "Could not open maps. Try manually entering the address: " + nearestTheater.address
+          );
+          return;
+        }
+        
+        const url = mapUrls[index];
+        Linking.canOpenURL(url)
+          .then(supported => {
+            if (supported) {
+              return Linking.openURL(url);
+            } else {
+              tryNextUrl(index + 1);
+            }
+          })
+          .catch(err => {
+            tryNextUrl(index + 1);
+          });
+      };
+      
+      tryNextUrl(0);
+      
+    } catch (error) {
+      Alert.alert("Navigation Error", "Please try again.");
+    }
   };
 
   const toggleExpanded = () => {

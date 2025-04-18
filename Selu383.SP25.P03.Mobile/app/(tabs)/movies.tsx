@@ -1,18 +1,62 @@
 import React from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, View, Text, Alert } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, View, Text, Alert, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 
 type Movie = {
   id: string;
   title: string;
   time: string;
+  image: any; 
+  description?: string;
 };
 
 const MOVIES: Movie[] = [
-  { id: '1', title: 'The Dark Knight', time: '7:30 PM' },
-  { id: '2', title: 'Inception', time: '8:00 PM' },
-  { id: '3', title: 'Interstellar', time: '6:45 PM' },
+  { 
+    id: '1', 
+    title: 'The Dark Knight', 
+    time: '7:30 PM',
+    image: require('@/assets/images/movie-images/dark-knight.jpeg'),
+    description: 'When the menace known as the Joker wreaks havoc on Gotham City, Batman must accept one of the greatest tests of his ability to fight injustice.'
+  },
+  { 
+    id: '2', 
+    title: 'Inception', 
+    time: '8:00 PM',
+    image: require('@/assets/images/movie-images/inception.jpeg'),
+    description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.'
+  },
+  { 
+    id: '3', 
+    title: 'Interstellar', 
+    time: '6:45 PM',
+    image: require('@/assets/images/movie-images/interstellar.jpeg'),
+    description: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity\'s survival.'
+  },
+  { 
+    id: '4', 
+    title: 'Novocaine', 
+    time: '9:15 PM',
+    image: require('@/assets/images/movie-images/novocaine.jpeg'),
+    description: 'A dentist finds himself caught up in a web of sex, drugs, and murder after meeting a seductive new patient.'
+  },
+  { 
+    id: '5', 
+    title: 'Oppenheimer', 
+    time: '7:00 PM',
+    image: require('@/assets/images/movie-images/oppenheimer.jpeg'),
+    description: 'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.'
+  },
+  { 
+    id: '6', 
+    title: 'Dune: Part Two', 
+    time: '8:30 PM',
+    image: require('@/assets/images/movie-images/dune.jpeg'),
+    description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.'
+  },
 ];
+
+const { width } = Dimensions.get('window');
+const numColumns = 2;
 
 export default function MoviesScreen() {
   const router = useRouter();
@@ -36,6 +80,22 @@ export default function MoviesScreen() {
     );
   };
 
+  const renderMovieItem = ({ item }: { item: Movie }) => (
+    <View style={styles.movieCard}>
+      <Image
+        source={item.image}
+        style={styles.moviePoster}
+      />
+      <Text style={styles.movieTitle}>{item.title}</Text>
+      <TouchableOpacity 
+        style={styles.button}
+        onPress={() => handleBuyTickets(item)}
+      >
+        <Text style={styles.buttonText}>Buy Tickets</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.pageTitle}>Now Playing</Text>
@@ -43,19 +103,10 @@ export default function MoviesScreen() {
       <FlatList
         data={MOVIES}
         keyExtractor={(item) => item.id}
-        style={styles.list}
-        renderItem={({ item }) => (
-          <View style={styles.movieItem}>
-            <Text style={styles.movieTitle}>{item.title}</Text>
-            <Text style={styles.movieTime}>{item.time}</Text>
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={() => handleBuyTickets(item)}
-            >
-              <Text style={styles.buttonText}>Buy Tickets</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        numColumns={numColumns}
+        renderItem={renderMovieItem}
+        contentContainerStyle={styles.listContent}
+        columnWrapperStyle={styles.columnWrapper}
       />
     </View>
   );
@@ -74,42 +125,48 @@ const styles = StyleSheet.create({
     marginTop: 40,
     color: '#E8EEF2',
   },
-  list: {
-    width: '100%',
+  listContent: {
+    paddingBottom: 20,
   },
-  movieItem: {
-    padding: 16,
-    backgroundColor: '#F0F4F8',
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  movieCard: {
+    width: (width - 40) / 2, 
+    backgroundColor: '#0A1822',
     borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#0A1822',
+    overflow: 'hidden',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 5,
+    marginBottom: 16,
+  },
+  moviePoster: {
+    width: '100%',
+    height: 270,
+    backgroundColor: '#0A1822',
   },
   movieTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#1F3A4D',
-  },
-  movieTime: {
     fontSize: 16,
-    marginTop: 4,
-    color: '#4A6375',
+    fontWeight: 'bold',
+    color: '#E8EEF2',
+    padding: 8,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#0C6184',
-    padding: 10,
+    padding: 8,
+    marginHorizontal: 10,
+    marginBottom: 10,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 12,
-    width: 120,
   },
   buttonText: {
     color: '#E8EEF2',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 14,
   },
 });
