@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   FlatList, 
@@ -7,13 +7,14 @@ import {
   View, 
   Modal, 
   Text, 
-  Image,
   Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useIsFocused } from '@react-navigation/native';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import QRCode from 'react-native-qrcode-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Ticket = {
   id: string;
@@ -24,13 +25,13 @@ type Ticket = {
   seats: string;
 };
 
-// Sample Ticket Data - Upcoming Movies
-const TICKETS: Ticket[] = [
+// Sample Ticket Data
+const SAMPLE_TICKETS: Ticket[] = [
   { 
     id: 't1', 
     movieTitle: 'The Dark Knight', 
     theater: "Lion's Den New York", 
-    date: 'May  7, 2025', 
+    date: 'May 7, 2025', 
     time: '7:30 PM',
     seats: 'G7, G8'
   },
@@ -54,22 +55,35 @@ const TICKETS: Ticket[] = [
 
 export default function TicketsScreen() {
   const router = useRouter();
+  const isFocused = useIsFocused(); 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  
+  // Load tickets from AsyncStorage
+  useEffect(() => {
+    const loadTickets = async () => {
+      const storedTickets = await AsyncStorage.getItem('userTickets');
+      
+      if (storedTickets) {
+        const parsedTickets = JSON.parse(storedTickets);
+        const allTickets = [...parsedTickets, ...SAMPLE_TICKETS];
+        setTickets(allTickets);
+      } else {
+        setTickets(SAMPLE_TICKETS);
+      }
+    };
+    
+    if (isFocused) {
+      loadTickets();
+    }
+  }, [isFocused]);
 
   const handleViewTicket = (ticket: Ticket) => {
-    try {
-      setTimeout(() => {
-        setSelectedTicket(ticket);
-        setModalVisible(true);
-      }, 100);
-    } catch (error) {
-      console.error('Error opening ticket:', error);
-      Alert.alert(
-        "Ticket Details",
-        `Movie: ${ticket.movieTitle}\nTheater: ${ticket.theater}\nDate: ${ticket.date} at ${ticket.time}\nSeats: ${ticket.seats}\nTicket ID: ${ticket.id.toUpperCase()}`
-      );
-    }
+    setTimeout(() => {
+      setSelectedTicket(ticket);
+      setModalVisible(true);
+    }, 100);
   };
 
   const closeModal = () => {
@@ -88,9 +102,9 @@ export default function TicketsScreen() {
       </View>
       
       <View style={styles.content}>
-        {TICKETS.length > 0 ? (
+        {tickets.length > 0 ? (
           <FlatList
-            data={TICKETS}
+            data={tickets}
             keyExtractor={(item) => item.id}
             style={styles.list}
             renderItem={({ item }) => (
