@@ -10,10 +10,9 @@ namespace Selu383.SP25.P03.Api.Data
         {
             using (var context = new DataContext(serviceProvider.GetRequiredService<DbContextOptions<DataContext>>()))
             {
-                // Look for any roles.
                 if (context.Users.Any())
                 {
-                    return;   // DB has been seeded
+                    return;   
                 }
                 var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
 

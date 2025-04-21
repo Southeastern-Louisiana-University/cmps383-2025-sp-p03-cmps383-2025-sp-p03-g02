@@ -9,10 +9,8 @@ namespace Selu383.SP25.P03.Api.Data
         {
             using (var context = new DataContext(serviceProvider.GetRequiredService<DbContextOptions<DataContext>>()))
             {
-                // Check if theaters are already seeded (to avoid duplicates)
                 if (!context.Theaters.Any())
                 {
-                    // Add new theaters only if they don't exist
                     context.Theaters.AddRange(
                         new Theater
                         {
