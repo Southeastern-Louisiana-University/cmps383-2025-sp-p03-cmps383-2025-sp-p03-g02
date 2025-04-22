@@ -11,16 +11,20 @@
     font-size: 32px;
     font-weight: bold;
     margin-bottom: 20px;
+    color:rgb(53, 128, 221);
   }
   
   .account-username {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 10px;
+    
+  
   }
   
   .account-info {
     margin-bottom: 30px;
+    color:#51a8e2;
   }
   
   .account-actions {
@@ -37,7 +41,7 @@
     font-weight: 500;
     border: 1px solid #e5e7eb;
     background-color: white;
-    color: #1e3748;
+    color: #1598ee;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
