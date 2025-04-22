@@ -9,16 +9,27 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useTheaterMode } from '@/components/TheaterMode';
 
 function CustomHapticTab(props: BottomTabBarButtonProps) {
   const focused = props.accessibilityState?.selected;
+  const colorScheme = useColorScheme();
+  const { isTheaterMode } = useTheaterMode();
+  
+  const tintColor = isTheaterMode 
+    ? '#FFFFFF' 
+    : Colors[colorScheme ?? 'light'].tint;
+  
+  const bgColor = isTheaterMode
+    ? (focused ? 'rgba(255, 255, 255, 0.15)' : 'transparent')
+    : (focused ? 'rgba(10, 126, 164, 0.20)' : 'transparent');
   
   return (
     <View style={{
       flex: 1,
-      backgroundColor: focused ? 'rgba(10, 126, 164, 0.20)' : 'transparent',
+      backgroundColor: bgColor,
       borderTopWidth: focused ? 2 : 0,
-      borderTopColor: Colors[useColorScheme() ?? 'light'].tint,
+      borderTopColor: tintColor,
       paddingTop: focused ? 0 : 2,
     }}>
       <HapticTab {...props} />
@@ -28,6 +39,7 @@ function CustomHapticTab(props: BottomTabBarButtonProps) {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { isTheaterMode } = useTheaterMode();
 
   const renderIcon = (iosIconName: string, androidIconName: string, color: string) => {
     if (Platform.OS === 'ios') {
@@ -37,13 +49,22 @@ export default function TabLayout() {
     }
   };
 
+  const activeTintColor = isTheaterMode 
+    ? '#FFFFFF' 
+    : Colors[colorScheme ?? 'light'].tint;
+
+  const inactiveTintColor = isTheaterMode
+    ? '#888888'
+    : Colors[colorScheme ?? 'light'].tabIconDefault;
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: activeTintColor,
+        tabBarInactiveTintColor: inactiveTintColor,
         headerShown: false,
         tabBarButton: CustomHapticTab,
-        tabBarBackground: TabBarBackground,
+        tabBarBackground: () => <TabBarBackground isTheaterMode={isTheaterMode} />,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '800',
@@ -51,8 +72,11 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
+            backgroundColor: isTheaterMode ? 'rgba(0, 0, 0, 0.8)' : undefined,
           },
-          default: {},
+          default: {
+            backgroundColor: isTheaterMode ? '#000000' : undefined,
+          },
         }),
       }}>
       <Tabs.Screen
