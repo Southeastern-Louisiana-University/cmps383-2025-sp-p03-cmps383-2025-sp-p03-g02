@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheaterMode } from '@/components/TheaterMode';
 
 type Movie = {
   id: string;
@@ -143,6 +144,7 @@ export default function MoviesScreen() {
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   const [ticketModalVisible, setTicketModalVisible] = useState(false);
   const [seatSelectionModalVisible, setSeatSelectionModalVisible] = useState(false);
+  const { isTheaterMode } = useTheaterMode();
 
   const handleBuyTickets = (movie: Movie) => {
     setSelectedMovie(movie);
@@ -224,17 +226,26 @@ export default function MoviesScreen() {
     <View style={styles.legendContainer}>
       <View style={styles.legendItem}>
         <View style={[styles.legendSeat, {backgroundColor: '#2C5364'}]} />
-        <Text style={styles.legendText}>Available</Text>
+        <Text style={[
+          styles.legendText,
+          isTheaterMode && { color: '#FFFFFF' }
+        ]}>Available</Text>
       </View>
       
       <View style={styles.legendItem}>
         <View style={[styles.legendSeat, {backgroundColor: '#E63946', borderColor: '#FFFFFF', borderWidth: 2}]} />
-        <Text style={styles.legendText}>Selected</Text>
+        <Text style={[
+          styles.legendText,
+          isTheaterMode && { color: '#FFFFFF' }
+        ]}>Selected</Text>
       </View>
       
       <View style={styles.legendItem}>
         <View style={[styles.legendSeat, {backgroundColor: '#505B65'}]} />
-        <Text style={styles.legendText}>Occupied</Text>
+        <Text style={[
+          styles.legendText,
+          isTheaterMode && { color: '#FFFFFF' }
+        ]}>Occupied</Text>
       </View>
     </View>
   );
@@ -301,7 +312,10 @@ export default function MoviesScreen() {
 
   const renderRow = (row: Seat[], rowIndex: number) => (
     <View key={`row-${rowIndex}`} style={styles.row}>
-      <Text style={styles.rowLabel}>{row[0].row}</Text>
+      <Text style={[
+        styles.rowLabel,
+        isTheaterMode && { color: '#FFFFFF' }
+      ]}>{row[0].row}</Text>
       <View style={styles.seats}>
         {row.map(seat => renderSeat(seat))}
       </View>
@@ -309,12 +323,18 @@ export default function MoviesScreen() {
   );
   
   const renderMovieItem = ({ item }: { item: Movie }) => (
-    <View style={styles.movieCard}>
+    <View style={[
+      styles.movieCard,
+      isTheaterMode && { backgroundColor: '#111111', shadowColor: '#000000' }
+    ]}>
       <Image
         source={item.image}
         style={styles.moviePoster}
       />
-      <Text style={styles.movieTitle}>{item.title}</Text>
+      <Text style={[
+        styles.movieTitle,
+        isTheaterMode && { color: '#FFFFFF' }
+      ]}>{item.title}</Text>
       <TouchableOpacity 
         style={styles.button}
         onPress={() => handleBuyTickets(item)}
@@ -325,8 +345,14 @@ export default function MoviesScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>Now Playing</Text>
+    <View style={[
+      styles.container,
+      isTheaterMode && { backgroundColor: '#000000' }
+    ]}>
+      <Text style={[
+        styles.pageTitle,
+        isTheaterMode && { color: '#FFFFFF' }
+      ]}>Now Playing</Text>
       
       <FlatList
         data={MOVIES}
@@ -345,10 +371,19 @@ export default function MoviesScreen() {
         onRequestClose={() => setTicketModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>How many tickets?</Text>
+          <View style={[
+            styles.modalContent,
+            isTheaterMode && { backgroundColor: '#111111' }
+          ]}>
+            <Text style={[
+              styles.modalTitle,
+              isTheaterMode && { color: '#FFFFFF' }
+            ]}>How many tickets?</Text>
             {selectedMovie && (
-              <Text style={styles.modalMovieTitle}>{selectedMovie.title} - {selectedMovie.time}</Text>
+              <Text style={[
+                styles.modalMovieTitle,
+                isTheaterMode && { color: '#AAAAAA' }
+              ]}>{selectedMovie.title} - {selectedMovie.time}</Text>
             )}
             
             <View style={styles.ticketCountContainer}>
@@ -359,7 +394,10 @@ export default function MoviesScreen() {
                 <Text style={styles.countButtonText}>-</Text>
               </TouchableOpacity>
               
-              <Text style={styles.ticketCount}>{ticketCount}</Text>
+              <Text style={[
+                styles.ticketCount,
+                isTheaterMode && { color: '#FFFFFF' }
+              ]}>{ticketCount}</Text>
               
               <TouchableOpacity 
                 style={styles.countButton}
@@ -369,16 +407,25 @@ export default function MoviesScreen() {
               </TouchableOpacity>
             </View>
             
-            <Text style={styles.ticketPrice}>
+            <Text style={[
+              styles.ticketPrice,
+              isTheaterMode && { color: '#FFFFFF' }
+            ]}>
               Total: ${(ticketCount * 12.99).toFixed(2)}
             </Text>
             
             <View style={styles.modalButtonsContainer}>
               <TouchableOpacity
-                style={styles.cancelButton}
+                style={[
+                  styles.cancelButton,
+                  isTheaterMode && { borderColor: '#AAAAAA' }
+                ]}
                 onPress={() => setTicketModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[
+                  styles.cancelButtonText,
+                  isTheaterMode && { color: '#FFFFFF' }
+                ]}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -399,8 +446,14 @@ export default function MoviesScreen() {
         visible={seatSelectionModalVisible}
         onRequestClose={() => setSeatSelectionModalVisible(false)}
       >
-        <View style={styles.seatSelectionContainer}>
-          <View style={styles.seatSelectionHeader}>
+        <View style={[
+          styles.seatSelectionContainer,
+          isTheaterMode && { backgroundColor: '#000000' }
+        ]}>
+          <View style={[
+            styles.seatSelectionHeader,
+            isTheaterMode && { backgroundColor: '#111111' }
+          ]}>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => {
@@ -413,8 +466,14 @@ export default function MoviesScreen() {
             
             {selectedMovie && (
               <View style={styles.headerTitleContainer}>
-                <Text style={styles.headerTitle}>{selectedMovie.title}</Text>
-                <Text style={styles.headerSubtitle}>{selectedMovie.time} • Lion's Den Cinema</Text>
+                <Text style={[
+                  styles.headerTitle,
+                  isTheaterMode && { color: '#FFFFFF' }
+                ]}>{selectedMovie.title}</Text>
+                <Text style={[
+                  styles.headerSubtitle,
+                  isTheaterMode && { color: '#AAAAAA' }
+                ]}>{selectedMovie.time} • Lion's Den Cinema</Text>
               </View>
             )}
             
@@ -422,13 +481,19 @@ export default function MoviesScreen() {
           </View>
           
           <ScrollView 
-            contentContainerStyle={styles.seatSelectionContent}
+            contentContainerStyle={[
+              styles.seatSelectionContent,
+              isTheaterMode && { backgroundColor: '#000000' }
+            ]}
             showsVerticalScrollIndicator={true}
           >
             {}
             <View style={styles.screenContainer}>
               <View style={styles.screenCurve} />
-              <View style={styles.screen}>
+              <View style={[
+                styles.screen,
+                isTheaterMode && { backgroundColor: '#111111' }
+              ]}>
                 <Text style={styles.screenText}>SCREEN</Text>
               </View>
             </View>
@@ -440,12 +505,21 @@ export default function MoviesScreen() {
             {renderLegend()}
           </ScrollView>
           
-          <View style={styles.seatSelectionFooter}>
+          <View style={[
+            styles.seatSelectionFooter,
+            isTheaterMode && { backgroundColor: '#111111', borderTopColor: '#222222' }
+          ]}>
             <View style={styles.selectedSeatsInfo}>
-              <Text style={styles.selectedSeatsTitle}>
+              <Text style={[
+                styles.selectedSeatsTitle,
+                isTheaterMode && { color: '#FFFFFF' }
+              ]}>
                 Selected: {selectedSeats.length} of {ticketCount}
               </Text>
-              <Text style={styles.selectedSeatsList}>
+              <Text style={[
+                styles.selectedSeatsList,
+                isTheaterMode && { color: '#AAAAAA' }
+              ]}>
                 {selectedSeats.length > 0 
                   ? selectedSeats.map(seat => `${seat.row}${seat.number}`).join(', ')
                   : 'No seats selected'}

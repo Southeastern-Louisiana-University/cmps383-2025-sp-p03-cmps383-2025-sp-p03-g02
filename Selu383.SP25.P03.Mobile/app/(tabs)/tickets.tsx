@@ -15,6 +15,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import QRCode from 'react-native-qrcode-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheaterMode } from '@/components/TheaterMode';
 
 type Ticket = {
   id: string;
@@ -59,6 +60,7 @@ export default function TicketsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const { isTheaterMode } = useTheaterMode();
   
   // Load tickets from AsyncStorage
   useEffect(() => {
@@ -96,9 +98,15 @@ export default function TicketsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[
+      styles.container,
+      isTheaterMode && { backgroundColor: '#000000' }
+    ]}>
       <View style={styles.fixedHeader}>
-        <Text style={styles.pageTitle}>My Tickets</Text>
+        <Text style={[
+          styles.pageTitle,
+          isTheaterMode && { color: '#FFFFFF' }
+        ]}>My Tickets</Text>
       </View>
       
       <View style={styles.content}>
@@ -109,16 +117,37 @@ export default function TicketsScreen() {
             style={styles.list}
             renderItem={({ item }) => (
               <TouchableOpacity 
-                style={styles.ticketItem}
+                style={[
+                  styles.ticketItem,
+                  isTheaterMode && { 
+                    backgroundColor: '#222222',
+                    shadowColor: '#000000' 
+                  }
+                ]}
                 onPress={() => handleViewTicket(item)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.movieTitle}>{item.movieTitle}</Text>
-                <Text style={styles.ticketDetails}>{item.theater}</Text>
-                <Text style={styles.ticketDetails}>{item.date} • {item.time}</Text>
+                <Text style={[
+                  styles.movieTitle,
+                  isTheaterMode && { color: '#FFFFFF' }
+                ]}>{item.movieTitle}</Text>
+                <Text style={[
+                  styles.ticketDetails,
+                  isTheaterMode && { color: '#AAAAAA' }
+                ]}>{item.theater}</Text>
+                <Text style={[
+                  styles.ticketDetails,
+                  isTheaterMode && { color: '#AAAAAA' }
+                ]}>{item.date} • {item.time}</Text>
                 <View style={styles.seatsContainer}>
-                  <Text style={styles.seatsLabel}>Seats:</Text>
-                  <Text style={styles.seats}>{item.seats}</Text>
+                  <Text style={[
+                    styles.seatsLabel,
+                    isTheaterMode && { color: '#AAAAAA' }
+                  ]}>Seats:</Text>
+                  <Text style={[
+                    styles.seats,
+                    isTheaterMode && { color: '#FFFFFF' }
+                  ]}>{item.seats}</Text>
                 </View>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity 
@@ -134,7 +163,10 @@ export default function TicketsScreen() {
           />
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>You don't have any tickets yet.</Text>
+            <Text style={[
+              styles.emptyStateText,
+              isTheaterMode && { color: '#FFFFFF' }
+            ]}>You don't have any tickets yet.</Text>
             <TouchableOpacity 
               style={styles.browseButton}
               onPress={() => router.push('/movies')}
@@ -158,18 +190,28 @@ export default function TicketsScreen() {
             <View style={styles.modalBackdrop} />
           </TouchableWithoutFeedback>
           
-          <View style={styles.modalContent}>
+          <View style={[
+            styles.modalContent,
+            isTheaterMode && { backgroundColor: '#222222' }
+          ]}>
             <TouchableOpacity 
               style={styles.closeButton} 
               onPress={closeModal}
               hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
             >
-              <IconSymbol name="xmark" size={24} color="#4A6375" />
+              <IconSymbol 
+                name="xmark" 
+                size={24} 
+                color={isTheaterMode ? '#AAAAAA' : '#4A6375'} 
+              />
             </TouchableOpacity>
             
             {selectedTicket && (
               <>
-                <Text style={styles.modalTitle}>{selectedTicket.movieTitle}</Text>
+                <Text style={[
+                  styles.modalTitle,
+                  isTheaterMode && { color: '#FFFFFF' }
+                ]}>{selectedTicket.movieTitle}</Text>
                 
                 <View style={styles.qrContainer}>
                   <View style={styles.qrCode}>
@@ -180,38 +222,78 @@ export default function TicketsScreen() {
                       backgroundColor="#FFFFFF"
                     />
                   </View>
-                  <Text style={styles.qrHelpText}>Present this code at the theater</Text>
+                  <Text style={[
+                    styles.qrHelpText,
+                    isTheaterMode && { color: '#AAAAAA' }
+                  ]}>Present this code at the theater</Text>
                 </View>
                 
                 <View style={styles.ticketInfoContainer}>
                   <View style={styles.ticketInfoRow}>
-                    <Text style={styles.ticketInfoLabel}>Theater:</Text>
-                    <Text style={styles.ticketInfoValue}>{selectedTicket.theater}</Text>
+                    <Text style={[
+                      styles.ticketInfoLabel,
+                      isTheaterMode && { color: '#AAAAAA' }
+                    ]}>Theater:</Text>
+                    <Text style={[
+                      styles.ticketInfoValue,
+                      isTheaterMode && { color: '#FFFFFF' }
+                    ]}>{selectedTicket.theater}</Text>
                   </View>
                   
                   <View style={styles.ticketInfoRow}>
-                    <Text style={styles.ticketInfoLabel}>Date & Time:</Text>
-                    <Text style={styles.ticketInfoValue}>
+                    <Text style={[
+                      styles.ticketInfoLabel,
+                      isTheaterMode && { color: '#AAAAAA' }
+                    ]}>Date & Time:</Text>
+                    <Text style={[
+                      styles.ticketInfoValue,
+                      isTheaterMode && { color: '#FFFFFF' }
+                    ]}>
                       {selectedTicket.date} at {selectedTicket.time}
                     </Text>
                   </View>
                   
                   <View style={styles.ticketInfoRow}>
-                    <Text style={styles.ticketInfoLabel}>Seats:</Text>
-                    <Text style={styles.ticketInfoValue}>{selectedTicket.seats}</Text>
+                    <Text style={[
+                      styles.ticketInfoLabel,
+                      isTheaterMode && { color: '#AAAAAA' }
+                    ]}>Seats:</Text>
+                    <Text style={[
+                      styles.ticketInfoValue,
+                      isTheaterMode && { color: '#FFFFFF' }
+                    ]}>{selectedTicket.seats}</Text>
                   </View>
                   
                   <View style={styles.ticketInfoRow}>
-                    <Text style={styles.ticketInfoLabel}>Ticket ID:</Text>
-                    <Text style={styles.ticketInfoValue}>{selectedTicket.id.toUpperCase()}</Text>
+                    <Text style={[
+                      styles.ticketInfoLabel,
+                      isTheaterMode && { color: '#AAAAAA' }
+                    ]}>Ticket ID:</Text>
+                    <Text style={[
+                      styles.ticketInfoValue,
+                      isTheaterMode && { color: '#FFFFFF' }
+                    ]}>{selectedTicket.id.toUpperCase()}</Text>
                   </View>
                 </View>
                 
-                <View style={styles.separator} />
+                <View style={[
+                  styles.separator,
+                  isTheaterMode && { backgroundColor: '#444444' }
+                ]} />
                 
-                <View style={styles.reminderContainer}>
-                  <IconSymbol name="info.circle" size={20} color="#0C6184" />
-                  <Text style={styles.reminderText}>
+                <View style={[
+                  styles.reminderContainer,
+                  isTheaterMode && { backgroundColor: 'rgba(12, 97, 132, 0.2)' }
+                ]}>
+                  <IconSymbol 
+                    name="info.circle" 
+                    size={20} 
+                    color={isTheaterMode ? '#8ED4F1' : '#0C6184'} 
+                  />
+                  <Text style={[
+                    styles.reminderText,
+                    isTheaterMode && { color: '#FFFFFF' }
+                  ]}>
                     Please arrive 15 minutes before showtime. Enjoy your movie!
                   </Text>
                 </View>

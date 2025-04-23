@@ -13,6 +13,8 @@ import {
   ScrollView,
   Modal
 } from 'react-native';
+import { useTheaterMode } from '@/components/TheaterMode';
+
 
 type ConcessionItem = {
   id: string;
@@ -101,6 +103,7 @@ export default function ConcessionsScreen() {
   const [selectedItem, setSelectedItem] = useState<ConcessionItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [orderModalVisible, setOrderModalVisible] = useState(false);
+  const { isTheaterMode } = useTheaterMode(); 
   
   // Filter items based on selected category
   const filteredItems = selectedCategory 
@@ -183,14 +186,23 @@ export default function ConcessionsScreen() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[
+            styles.modalContent,
+            isTheaterMode && { backgroundColor: '#222222' }
+          ]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{selectedItem.name}</Text>
+              <Text style={[
+                styles.modalTitle,
+                isTheaterMode && { color: '#FFFFFF' }
+              ]}>{selectedItem.name}</Text>
               <TouchableOpacity 
                 onPress={() => setModalVisible(false)}
                 style={styles.closeButton}
               >
-                <Text style={styles.closeButtonText}>×</Text>
+                <Text style={[
+                  styles.closeButtonText,
+                  isTheaterMode && { color: '#AAAAAA' }
+                ]}>×</Text>
               </TouchableOpacity>
             </View>
             
@@ -200,11 +212,17 @@ export default function ConcessionsScreen() {
                 style={styles.modalImage}
                 resizeMode="cover"
               />
-              <Text style={styles.modalPrice}>${totalPrice}</Text>
+              <Text style={[
+                styles.modalPrice,
+                isTheaterMode && { color: '#8ED4F1' }
+              ]}>${totalPrice}</Text>
             </View>
             
             <View style={styles.quantitySelector}>
-              <Text style={styles.quantityLabel}>Quantity:</Text>
+              <Text style={[
+                styles.quantityLabel,
+                isTheaterMode && { color: '#FFFFFF' }
+              ]}>Quantity:</Text>
               <View style={styles.quantityControls}>
                 <TouchableOpacity 
                   style={[styles.quantityButton, quantity <= 1 && styles.quantityButtonDisabled]}
@@ -214,7 +232,10 @@ export default function ConcessionsScreen() {
                   <Text style={[styles.quantityButtonText, quantity <= 1 && styles.quantityButtonTextDisabled]}>-</Text>
                 </TouchableOpacity>
                 
-                <Text style={styles.quantityValue}>{quantity}</Text>
+                <Text style={[
+                  styles.quantityValue,
+                  isTheaterMode && { color: '#FFFFFF' }
+                ]}>{quantity}</Text>
                 
                 <TouchableOpacity 
                   style={styles.quantityButton}
@@ -274,21 +295,34 @@ export default function ConcessionsScreen() {
         onRequestClose={() => setOrderModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, styles.orderModalContent]}>
+          <View style={[
+            styles.modalContent, 
+            styles.orderModalContent,
+            isTheaterMode && { backgroundColor: '#222222' }
+          ]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Your Order</Text>
+              <Text style={[
+                styles.modalTitle,
+                isTheaterMode && { color: '#FFFFFF' }
+              ]}>Your Order</Text>
               <TouchableOpacity 
                 onPress={() => setOrderModalVisible(false)}
                 style={styles.closeButton}
               >
-                <Text style={styles.closeButtonText}>×</Text>
+                <Text style={[
+                  styles.closeButtonText,
+                  isTheaterMode && { color: '#AAAAAA' }
+                ]}>×</Text>
               </TouchableOpacity>
             </View>
             
             <ScrollView style={styles.orderItemsList}>
               {orderItems.length > 0 ? (
                 orderItems.map((orderItem) => (
-                  <View key={orderItem.id} style={styles.orderItem}>
+                  <View key={orderItem.id} style={[
+                    styles.orderItem,
+                    isTheaterMode && { borderBottomColor: '#333333' }
+                  ]}>
                     <View style={styles.orderItemImageContainer}>
                       <Image 
                         source={orderItem.item.image} 
@@ -298,8 +332,14 @@ export default function ConcessionsScreen() {
                     </View>
                     
                     <View style={styles.orderItemDetails}>
-                      <Text style={styles.orderItemName}>{orderItem.item.name}</Text>
-                      <Text style={styles.orderItemPrice}>${orderItem.price}</Text>
+                      <Text style={[
+                        styles.orderItemName,
+                        isTheaterMode && { color: '#FFFFFF' }
+                      ]}>{orderItem.item.name}</Text>
+                      <Text style={[
+                        styles.orderItemPrice,
+                        isTheaterMode && { color: '#8ED4F1' }
+                      ]}>${orderItem.price}</Text>
                       
                       <View style={styles.orderItemActions}>
                         <View style={styles.quantityControls}>
@@ -310,7 +350,10 @@ export default function ConcessionsScreen() {
                             <Text style={styles.quantityButtonText}>-</Text>
                           </TouchableOpacity>
                           
-                          <Text style={styles.quantityValue}>{orderItem.quantity}</Text>
+                          <Text style={[
+                            styles.quantityValue,
+                            isTheaterMode && { color: '#FFFFFF' }
+                          ]}>{orderItem.quantity}</Text>
                           
                           <TouchableOpacity 
                             style={[styles.quantityButton, styles.smallButton]}
@@ -332,16 +375,28 @@ export default function ConcessionsScreen() {
                 ))
               ) : (
                 <View style={styles.emptyCartContainer}>
-                  <Text style={styles.emptyCartText}>Your cart is empty</Text>
+                  <Text style={[
+                    styles.emptyCartText,
+                    isTheaterMode && { color: '#AAAAAA' }
+                  ]}>Your cart is empty</Text>
                 </View>
               )}
             </ScrollView>
             
             {orderItems.length > 0 && (
               <>
-                <View style={styles.orderSummary}>
-                  <Text style={styles.orderSummaryText}>Total:</Text>
-                  <Text style={styles.orderSummaryPrice}>${calculateTotalPrice()}</Text>
+                <View style={[
+                  styles.orderSummary,
+                  isTheaterMode && { borderTopColor: '#333333' }
+                ]}>
+                  <Text style={[
+                    styles.orderSummaryText,
+                    isTheaterMode && { color: '#FFFFFF' }
+                  ]}>Total:</Text>
+                  <Text style={[
+                    styles.orderSummaryPrice,
+                    isTheaterMode && { color: '#8ED4F1' }
+                  ]}>${calculateTotalPrice()}</Text>
                 </View>
                 
                 <TouchableOpacity 
@@ -354,12 +409,17 @@ export default function ConcessionsScreen() {
             )}
             
             <TouchableOpacity 
-              style={[styles.continueShoppingButton, orderItems.length === 0 && styles.fullWidthButton]}
+              style={[
+                styles.continueShoppingButton, 
+                orderItems.length === 0 && styles.fullWidthButton,
+                isTheaterMode && orderItems.length > 0 && { borderColor: '#8ED4F1' }
+              ]}
               onPress={() => setOrderModalVisible(false)}
             >
               <Text style={[
                 styles.continueShoppingText, 
-                orderItems.length === 0 && { color: '#FFFFFF' }
+                orderItems.length === 0 && { color: '#FFFFFF' },
+                isTheaterMode && orderItems.length > 0 && { color: '#8ED4F1' }
               ]}>
                 {orderItems.length > 0 ? 'Continue Shopping' : 'Back to Concessions'}
               </Text>
@@ -371,12 +431,24 @@ export default function ConcessionsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView style={[
+      styles.safeArea,
+      isTheaterMode && { backgroundColor: '#000000' }
+    ]}>
+      <View style={[
+        styles.container,
+        isTheaterMode && { backgroundColor: '#000000' }
+      ]}>
         {/* Header */}
         <View style={styles.headerContainer}>
-          <Text style={styles.pageTitle}>Concessions</Text>
-          <Text style={styles.subtitle}>Order food & drinks to your seat</Text>
+          <Text style={[
+            styles.pageTitle,
+            isTheaterMode && { color: '#FFFFFF' }
+          ]}>Concessions</Text>
+          <Text style={[
+            styles.subtitle,
+            isTheaterMode && { color: '#AAAAAA' }
+          ]}>Order food & drinks to your seat</Text>
         </View>
         
         {/* Category Filters */}
@@ -385,13 +457,23 @@ export default function ConcessionsScreen() {
             <TouchableOpacity 
               style={[
                 styles.categoryButton, 
-                selectedCategory === 'food' && styles.selectedCategoryButton
+                selectedCategory === 'food' && styles.selectedCategoryButton,
+                isTheaterMode && { 
+                  backgroundColor: 'rgba(150, 150, 150, 0.3)',
+                  borderColor: 'rgba(200, 200, 200, 0.6)'
+                },
+                isTheaterMode && selectedCategory === 'food' && { 
+                  backgroundColor: '#333333',
+                  borderColor: '#FFFFFF'
+                }
               ]}
               onPress={() => setSelectedCategory(selectedCategory === 'food' ? null : 'food')}
             >
               <Text style={[
                 styles.categoryButtonText,
-                selectedCategory === 'food' && styles.selectedCategoryText
+                selectedCategory === 'food' && styles.selectedCategoryText,
+                isTheaterMode && { color: '#AAAAAA' },
+                isTheaterMode && selectedCategory === 'food' && { color: '#FFFFFF' }
               ]}>
                 Food
               </Text>
@@ -400,13 +482,23 @@ export default function ConcessionsScreen() {
             <TouchableOpacity 
               style={[
                 styles.categoryButton, 
-                selectedCategory === 'drink' && styles.selectedCategoryButton
+                selectedCategory === 'drink' && styles.selectedCategoryButton,
+                isTheaterMode && { 
+                  backgroundColor: 'rgba(150, 150, 150, 0.3)',
+                  borderColor: 'rgba(200, 200, 200, 0.6)'
+                },
+                isTheaterMode && selectedCategory === 'drink' && { 
+                  backgroundColor: '#333333',
+                  borderColor: '#FFFFFF'
+                }
               ]}
               onPress={() => setSelectedCategory(selectedCategory === 'drink' ? null : 'drink')}
             >
               <Text style={[
                 styles.categoryButtonText,
-                selectedCategory === 'drink' && styles.selectedCategoryText
+                selectedCategory === 'drink' && styles.selectedCategoryText,
+                isTheaterMode && { color: '#AAAAAA' },
+                isTheaterMode && selectedCategory === 'drink' && { color: '#FFFFFF' }
               ]}>
                 Drinks
               </Text>
@@ -415,13 +507,23 @@ export default function ConcessionsScreen() {
             <TouchableOpacity 
               style={[
                 styles.categoryButton, 
-                selectedCategory === 'snack' && styles.selectedCategoryButton
+                selectedCategory === 'snack' && styles.selectedCategoryButton,
+                isTheaterMode && { 
+                  backgroundColor: 'rgba(150, 150, 150, 0.3)',
+                  borderColor: 'rgba(200, 200, 200, 0.6)'
+                },
+                isTheaterMode && selectedCategory === 'snack' && { 
+                  backgroundColor: '#333333',
+                  borderColor: '#FFFFFF'
+                }
               ]}
               onPress={() => setSelectedCategory(selectedCategory === 'snack' ? null : 'snack')}
             >
               <Text style={[
                 styles.categoryButtonText,
-                selectedCategory === 'snack' && styles.selectedCategoryText
+                selectedCategory === 'snack' && styles.selectedCategoryText,
+                isTheaterMode && { color: '#AAAAAA' },
+                isTheaterMode && selectedCategory === 'snack' && { color: '#FFFFFF' }
               ]}>
                 Snacks
               </Text>
@@ -430,13 +532,23 @@ export default function ConcessionsScreen() {
             <TouchableOpacity 
               style={[
                 styles.categoryButton, 
-                selectedCategory === 'combo' && styles.selectedCategoryButton
+                selectedCategory === 'combo' && styles.selectedCategoryButton,
+                isTheaterMode && { 
+                  backgroundColor: 'rgba(150, 150, 150, 0.3)',
+                  borderColor: 'rgba(200, 200, 200, 0.6)'
+                },
+                isTheaterMode && selectedCategory === 'combo' && { 
+                  backgroundColor: '#333333',
+                  borderColor: '#FFFFFF'
+                }
               ]}
               onPress={() => setSelectedCategory(selectedCategory === 'combo' ? null : 'combo')}
             >
               <Text style={[
                 styles.categoryButtonText,
-                selectedCategory === 'combo' && styles.selectedCategoryText
+                selectedCategory === 'combo' && styles.selectedCategoryText,
+                isTheaterMode && { color: '#AAAAAA' },
+                isTheaterMode && selectedCategory === 'combo' && { color: '#FFFFFF' }
               ]}>
                 Combos
               </Text>
@@ -457,19 +569,34 @@ export default function ConcessionsScreen() {
             const itemQuantity = cartItems[item.id] || 0;
             
             return (
-              <View style={styles.concessionCard}>
+              <View style={[
+                styles.concessionCard,
+                isTheaterMode && { 
+                  backgroundColor: '#222222',
+                  shadowColor: '#000000'
+                }
+              ]}>
                 {/* Top section with title and description */}
                 <View style={styles.cardHeader}>
                   <View style={styles.titleRow}>
-                    <Text style={styles.itemName}>
+                    <Text style={[
+                      styles.itemName,
+                      isTheaterMode && { color: '#FFFFFF' }
+                    ]}>
                       {item.name}
                       {itemQuantity > 0 && (
                         <Text style={styles.quantityBadge}> ({itemQuantity})</Text>
                       )}
                     </Text>
-                    <Text style={styles.itemPrice}>{item.price}</Text>
+                    <Text style={[
+                      styles.itemPrice,
+                      isTheaterMode && { color: '#8ED4F1' }
+                    ]}>{item.price}</Text>
                   </View>
-                  <Text style={styles.itemDescription}>{item.description}</Text>
+                  <Text style={[
+                    styles.itemDescription,
+                    isTheaterMode && { color: '#AAAAAA' }
+                  ]}>{item.description}</Text>
                 </View>
                 
                 {/* Image section */}
@@ -502,7 +629,13 @@ export default function ConcessionsScreen() {
         
         {/*Total items in the cart*/}
         {totalCartItems > 0 && (
-          <View style={styles.bottomButtonContainer}>
+          <View style={[
+            styles.bottomButtonContainer,
+            isTheaterMode && { 
+              backgroundColor: '#000000',
+              borderTopColor: 'rgba(255, 255, 255, 0.2)'
+            }
+          ]}>
             <TouchableOpacity 
               style={styles.viewOrderButton}
               onPress={handleViewOrder}
@@ -524,7 +657,6 @@ export default function ConcessionsScreen() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
