@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import * as Location from 'expo-location';
+import { useTheaterMode } from '@/components/TheaterMode';
 
 // Function to calculate distance between two coordinates
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -78,6 +79,7 @@ export default function TheatersScreen() {
   const [nearestTheater, setNearestTheater] = useState<Theater | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const { isTheaterMode } = useTheaterMode();
 
   useEffect(() => {
     const findNearestTheater = async () => {
@@ -144,20 +146,47 @@ export default function TheatersScreen() {
   const handleGetDirections = () => {
     if (!nearestTheater) return;
     
-    const address = encodeURIComponent(nearestTheater.address);
-    const url = Platform.select({
-      ios: `maps:q=${address}`,
-      android: `google.navigation:q=${nearestTheater.location.lat},${nearestTheater.location.lng}`,
-      default: `https://www.google.com/maps/search/?api=1&query=${address}`
-    });
-    
-    Linking.canOpenURL(url).then(supported => {
-      if (supported) {
-        Linking.openURL(url);
-      } else {
-        console.log("Don't know how to open URI: " + url);
-      }
-    });
+    try {
+      const address = encodeURIComponent(nearestTheater.address);
+      const lat = nearestTheater.location.lat;
+      const lng = nearestTheater.location.lng;
+      const name = encodeURIComponent(nearestTheater.name);
+      
+      const mapUrls = [
+        `geo:0,0?q=${lat},${lng}(${name})`,
+        `google.navigation:q=${lat},${lng}`,
+        `waze://?ll=${lat},${lng}&navigate=yes`,
+        `https://www.google.com/maps/search/?api=1&query=${address}`
+      ];
+      
+      const tryNextUrl = (index: number) => {
+        if (index >= mapUrls.length) {
+          Alert.alert(
+            "Navigation Error",
+            "Could not open maps. Try manually entering the address: " + nearestTheater.address
+          );
+          return;
+        }
+        
+        const url = mapUrls[index];
+        Linking.canOpenURL(url)
+          .then(supported => {
+            if (supported) {
+              return Linking.openURL(url);
+            } else {
+              tryNextUrl(index + 1);
+            }
+          })
+          .catch(err => {
+            tryNextUrl(index + 1);
+          });
+      };
+      
+      tryNextUrl(0);
+      
+    } catch (error) {
+      Alert.alert("Navigation Error", "Please try again.");
+    }
   };
 
   const toggleExpanded = () => {
@@ -168,8 +197,14 @@ export default function TheatersScreen() {
     return (
       <View style={styles.amenitiesContainer}>
         {amenities.map((amenity, index) => (
-          <View key={index} style={styles.amenityTag}>
-            <ThemedText style={styles.amenityText}>{amenity}</ThemedText>
+          <View key={index} style={[
+            styles.amenityTag,
+            isTheaterMode && { backgroundColor: 'rgba(12, 97, 132, 0.2)' }
+          ]}>
+            <ThemedText style={[
+              styles.amenityText,
+              isTheaterMode && { color: '#8ED4F1' }
+            ]}>{amenity}</ThemedText>
           </View>
         ))}
       </View>
@@ -178,43 +213,86 @@ export default function TheatersScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.loadingContainer}>
+      <SafeAreaView style={[
+        styles.safeArea,
+        isTheaterMode && { backgroundColor: '#000000' }
+      ]}>
+        <View style={[
+          styles.loadingContainer,
+          isTheaterMode && { backgroundColor: '#000000' }
+        ]}>
           <ActivityIndicator size="large" color="#0C6184" />
-          <Text style={styles.loadingText}>Finding your nearest theater...</Text>
+          <Text style={[
+            styles.loadingText,
+            isTheaterMode && { color: '#FFFFFF' }
+          ]}>Finding your nearest theater...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
-      <View style={styles.container}>
+    <SafeAreaView style={[
+      styles.safeArea,
+      isTheaterMode && { backgroundColor: '#000000' }
+    ]}>
+      <StatusBar barStyle={isTheaterMode ? "light-content" : "light-content"} />
+      <View style={[
+        styles.container,
+        isTheaterMode && { backgroundColor: '#000000' }
+      ]}>
         <View style={styles.headerContainer}>
-          <Text style={styles.pageTitle}>Our Theaters</Text>
-          <Text style={styles.subtitle}>We've selected the closest theater to you</Text>
+          <Text style={[
+            styles.pageTitle,
+            isTheaterMode && { color: '#FFFFFF' }
+          ]}>Our Theaters</Text>
+          <Text style={[
+            styles.subtitle,
+            isTheaterMode && { color: '#AAAAAA' }
+          ]}>We've selected the closest theater to you</Text>
         </View>
         
         {locationError && (
-          <View style={styles.errorContainer}>
+          <View style={[
+            styles.errorContainer,
+            isTheaterMode && { backgroundColor: 'rgba(220, 53, 69, 0.2)' }
+          ]}>
             <Text style={styles.errorText}>{locationError}</Text>
           </View>
         )}
 
         {nearestTheater && (
-          <View style={styles.theaterItem}>
+          <View style={[
+            styles.theaterItem,
+            isTheaterMode && { 
+              backgroundColor: '#222222',
+              shadowColor: '#000000' 
+            }
+          ]}>
             <TouchableOpacity 
-              style={styles.theaterCard}
+              style={[
+                styles.theaterCard,
+                isTheaterMode && { backgroundColor: '#222222' }
+              ]}
               onPress={toggleExpanded}
               activeOpacity={0.9}
             >
               <View style={styles.cardContent}>
-                <ThemedText style={styles.theaterName}>{nearestTheater.name}</ThemedText>
+                <ThemedText style={[
+                  styles.theaterName,
+                  isTheaterMode && { color: '#FFFFFF' }
+                ]}>{nearestTheater.name}</ThemedText>
                 
                 <View style={styles.locationRow}>
-                  <IconSymbol size={16} name="location.fill" color="#0C6184" />
-                  <ThemedText style={styles.theaterDistance}>
+                  <IconSymbol 
+                    size={16} 
+                    name="location.fill" 
+                    color={isTheaterMode ? "#8ED4F1" : "#0C6184"} 
+                  />
+                  <ThemedText style={[
+                    styles.theaterDistance,
+                    isTheaterMode && { color: '#AAAAAA' }
+                  ]}>
                     {nearestTheater.distance} away
                   </ThemedText>
                 </View>
@@ -224,20 +302,29 @@ export default function TheatersScreen() {
                 <IconSymbol 
                   size={22} 
                   name={expanded ? "chevron.up" : "chevron.down"} 
-                  color="#4A6375" 
+                  color={isTheaterMode ? "#AAAAAA" : "#4A6375"} 
                 />
               </View>
             </TouchableOpacity>
             
             {expanded && (
-              <View style={styles.detailsContainer}>
-                <ThemedText style={styles.theaterAddress}>{nearestTheater.address}</ThemedText>
+              <View style={[
+                styles.detailsContainer,
+                isTheaterMode && { borderTopColor: '#333333' }
+              ]}>
+                <ThemedText style={[
+                  styles.theaterAddress,
+                  isTheaterMode && { color: '#AAAAAA' }
+                ]}>{nearestTheater.address}</ThemedText>
                 
                 {renderAmenities(nearestTheater.amenities)}
                 
                 <View style={styles.buttonsContainer}>
                   <TouchableOpacity 
-                    style={styles.directionsButton}
+                    style={[
+                      styles.directionsButton,
+                      isTheaterMode && { backgroundColor: '#333333' }
+                    ]}
                     onPress={handleGetDirections}
                   >
                     <IconSymbol size={18} name="location.fill" color="#FFFFFF" />
@@ -257,8 +344,17 @@ export default function TheatersScreen() {
           </View>
         )}
         
-        <View style={styles.infoContainer}>
-          <ThemedText style={styles.infoText}>
+        <View style={[
+          styles.infoContainer,
+          isTheaterMode && { 
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            borderLeftColor: '#8ED4F1'
+          }
+        ]}>
+          <ThemedText style={[
+            styles.infoText,
+            isTheaterMode && { color: '#AAAAAA' }
+          ]}>
             Your movie experience is automatically set to this theater. You can change your default theater in account settings.
           </ThemedText>
         </View>
