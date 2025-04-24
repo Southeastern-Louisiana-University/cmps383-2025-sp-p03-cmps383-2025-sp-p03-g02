@@ -4,9 +4,9 @@ import Theaters from "./pages/Theaters";
 import Tickets from "./pages/Tickets";
 import Food from "./pages/Food";
 import Account from "./pages/Account";
-
 import Management from "./pages/Management";
 import { AddFoodItemForm } from "./pages/EditFoodMenu";
+import  ViewOrdersPage  from "./pages/EditOrders";
 import { AddMovieForm } from "./pages/EditMovie";
 import { AddShowTimeForm } from "./pages/EditShowTimes";
 import { AddTicketForm } from './pages/EditTicket';
@@ -58,6 +58,10 @@ const AppRoutes = ({
       <Route
         path="/editmenu"
         element={currentUser ? <AddFoodItemForm /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/vieworders"
+        element={currentUser ? <ViewOrdersPage /> : <Navigate to="/" />}
       />
       <Route
         path="/editmovie"
