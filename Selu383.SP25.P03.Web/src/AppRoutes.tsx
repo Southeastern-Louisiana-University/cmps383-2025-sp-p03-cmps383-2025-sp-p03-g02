@@ -34,7 +34,7 @@ const AppRoutes = ({
       {/* Public Routes */}
       <Route path="/" element={<Movies />} />
       <Route path="/theaters" element={<Theaters />} />
-      <Route path="/food" element={<Food currentUser={currentUser} />} />
+      <Route path="/food" element={<Food />} />
 
       {/* Protected Routes */}
       <Route

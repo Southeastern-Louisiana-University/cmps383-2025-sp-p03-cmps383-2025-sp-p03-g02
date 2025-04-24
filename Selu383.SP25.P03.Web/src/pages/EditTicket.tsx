@@ -36,13 +36,19 @@ interface MovieDto {
   title: string;
 }
 
+interface UserDto {
+  id: number;
+  userName: string;
+  roles: string[];
+}
+
 export function AddTicketForm() {
   const [tickets, setTickets] = useState<TicketDto[]>([]);
   const [showtimes, setShowtimes] = useState<ShowtimeDto[]>([]);
   const [seats, setSeats] = useState<SeatDto[]>([]);
   const [theaters, setTheaters] = useState<TheaterDto[]>([]);
   const [movies, setMovies] = useState<MovieDto[]>([]);
-  const [userId, setUserId] = useState<number | "">("");            //placeholder do prop
+  const [userId, setUserId] = useState<number | "">("");
   const [showtimeId, setShowtimeId] = useState<number | "">("");
   const [seatId, setSeatId] = useState<number | "">("");
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -52,9 +58,7 @@ export function AddTicketForm() {
   const [editingTicketId, setEditingTicketId] = useState<number | null>(null);
 
   useEffect(() => {
-    const currentUser = getCurrentUser();    
-    setUserId(currentUser);
-
+    fetchCurrentUser();
     fetchShowtimes();
     fetchSeats();
     fetchTheaters();
@@ -62,8 +66,18 @@ export function AddTicketForm() {
     fetchTickets();
   }, []);
 
-  const getCurrentUser = () => {            //placeholder
-    return 1;
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("/api/authentication/me");
+      if (!response.ok) {
+        throw new Error("Failed to fetch current user");
+      }
+      const user: UserDto = await response.json();
+      setUserId(user.id); 
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      setUserId(""); 
+    }
   };
 
   const fetchShowtimes = () => {
@@ -240,7 +254,7 @@ export function AddTicketForm() {
   const resetForm = () => {
     setOperation("add");
     setEditingTicketId(null);
-    setUserId("");
+    fetchCurrentUser(); // Reset to current user when form is reset
     setShowtimeId("");
     setSeatId("");
     setPaymentMethod("");
