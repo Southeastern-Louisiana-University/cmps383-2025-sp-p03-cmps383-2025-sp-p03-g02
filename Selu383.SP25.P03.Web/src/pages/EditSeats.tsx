@@ -30,7 +30,7 @@ export function AddSeatForm() {
   const [selectedSeat, setSelectedSeat] = useState<SeatDto | null>(null);
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isGridView, setIsGridView] = useState(false);  // Track whether grid view is active
+  const [isGridView, setIsGridView] = useState(false);
 
   useEffect(() => {
     fetchSeats();
@@ -73,7 +73,7 @@ export function AddSeatForm() {
 
     const seat: SeatDto = {
       seatNumber,
-      showtimeId: showtimeId ?? 0, // ensure showtimeId is never null
+      showtimeId: showtimeId ?? 0,
       isBooked,
     };
 
@@ -108,12 +108,30 @@ export function AddSeatForm() {
     }
   };
 
-  const handleDelete = (id: number) => {
-    fetch(`api/seats/${id}`, { method: "DELETE" })
-      .then(() => {
-        setSeats(seats.filter((s) => s.id !== id));
-      })
-      .catch(() => setFormError("Failed to delete seat"));
+  const handleDelete = async (id: number) => {
+    if (loading) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this seat?");
+    if (!confirmDelete) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`api/seats/${id}`, { 
+        method: "DELETE" 
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete seat: ${errorText}`);
+      }
+      
+      setSeats(seats.filter((s) => s.id !== id));
+    } catch (error: any) {
+      setFormError(error.message || "Failed to delete seat");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -125,8 +143,8 @@ export function AddSeatForm() {
   };
 
   const generateSeatsForAllShowtimes = async () => {
-    const rows = "ABCDEFG"; // A–G 70 seats
-    const cols = 10; // 1–10
+    const rows = "ABCDEFG";
+    const cols = 10;
 
     setLoading(true);
     setFormError("");
@@ -271,44 +289,49 @@ export function AddSeatForm() {
       ) : (
         <table>
           <thead>
-          <tr>
-            <th>ID</th> 
-            <th>Seat Number</th>
-            <th>Showtime</th>
-            <th>Booked</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {seats.map((seat) => (
-            <tr key={seat.id}>
-              <td>{seat.id}</td> 
-              <td>{seat.seatNumber}</td>
-              <td>
-                {showtimes
-                  .filter((showtime) => showtime.id === seat.showtimeId)
-                  .map((showtime) => (
-                    <div key={showtime.id}>
-                      {`${getMovieTitle(showtime.movieId)} — ${new Date(
-                        showtime.showtimeDate
-                      ).toLocaleString()}`}
-                    </div>
-                  ))}
-              </td>
-              <td>{seat.isBooked ? "Yes" : "No"}</td>
-              <td>
-                <button
-                  onClick={() => {
-                    setOperation("edit");
-                    setSelectedSeat(seat);
-                    setSeatNumber(seat.seatNumber);
-                    setShowtimeId(seat.showtimeId);
-                    setIsBooked(seat.isBooked);
-                  }}
-                >
+            <tr>
+              <th>ID</th> 
+              <th>Seat Number</th>
+              <th>Showtime</th>
+              <th>Booked</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {seats.map((seat) => (
+              <tr key={seat.id}>
+                <td>{seat.id}</td> 
+                <td>{seat.seatNumber}</td>
+                <td>
+                  {showtimes
+                    .filter((showtime) => showtime.id === seat.showtimeId)
+                    .map((showtime) => (
+                      <div key={showtime.id}>
+                        {`${getMovieTitle(showtime.movieId)} — ${new Date(
+                          showtime.showtimeDate
+                        ).toLocaleString()}`}
+                      </div>
+                    ))}
+                </td>
+                <td>{seat.isBooked ? "Yes" : "No"}</td>
+                <td>
+                  <button
+                    onClick={() => {
+                      setOperation("edit");
+                      setSelectedSeat(seat);
+                      setSeatNumber(seat.seatNumber);
+                      setShowtimeId(seat.showtimeId);
+                      setIsBooked(seat.isBooked);
+                    }}
+                  >
                     Edit
                   </button>
-                  <button onClick={() => seat.id && handleDelete(seat.id)}>Delete</button>
+                  <button 
+                    onClick={() => seat.id && handleDelete(seat.id)}
+                    disabled={loading}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

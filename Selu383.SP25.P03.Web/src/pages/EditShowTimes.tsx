@@ -110,14 +110,30 @@ export function AddShowTimeForm() {
     }
   };
 
-  const handleDelete = (id: number) => {
-    fetch(`api/showtimes/${id}`, { 
-      method: "DELETE",
-    })
-      .then(() => {
-        setShowtimes(showtimes.filter((item) => item.id !== id));
-      })
-      .catch(() => setFormError("Failed to delete showtime"));
+  const handleDelete = async (id: number) => {
+    if (loading) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this showtime?");
+    if (!confirmDelete) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`api/showtimes/${id}`, { 
+        method: "DELETE",
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete showtime: ${errorText}`);
+      }
+      
+      setShowtimes(showtimes.filter((item) => item.id !== id));
+    } catch (error: any) {
+      setFormError(error.message || "Failed to delete showtime");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -250,8 +266,8 @@ export function AddShowTimeForm() {
           <tr>
             <th>ID</th>
             <th>Movie Title</th>
-            <th>Show Date</th> {/* Separated show date column */}
-            <th>Show Time</th> {/* Separated show time column */}
+            <th>Show Date</th>
+            <th>Show Time</th>
             <th>Ticket Price</th>
             <th>Theater Name</th>
             <th>Actions</th>
@@ -261,13 +277,13 @@ export function AddShowTimeForm() {
           {showtimes.map((showtime) => {
             const movie = movies.find((m) => m.id === showtime.movieId);
             const theater = theaters.find((t) => t.id === showtime.theaterId);
-            const { date, time } = formatShowtimeDate(showtime.showtimeDate); // Extracted date and time
+            const { date, time } = formatShowtimeDate(showtime.showtimeDate);
             return (
               <tr key={showtime.id}>
                 <td>{showtime.id}</td>
                 <td>{movie?.title}</td>
-                <td>{date}</td> {/* Display separated date */}
-                <td>{time}</td> {/* Display separated time */}
+                <td>{date}</td>
+                <td>{time}</td>
                 <td>${showtime.ticketPrice.toFixed(2)}</td>
                 <td>{theater?.name}</td>
                 <td>
@@ -284,7 +300,12 @@ export function AddShowTimeForm() {
                   >
                     Edit
                   </button>
-                  <button onClick={() => showtime.id && handleDelete(showtime.id)}>Delete</button>
+                  <button 
+                    onClick={() => showtime.id && handleDelete(showtime.id)}
+                    disabled={loading}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             );
