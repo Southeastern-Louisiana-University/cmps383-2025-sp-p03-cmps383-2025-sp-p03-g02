@@ -10,6 +10,7 @@ import  ViewOrdersPage  from "./pages/EditOrders";
 import { AddMovieForm } from "./pages/EditMovie";
 import { AddShowTimeForm } from "./pages/EditShowTimes";
 import { AddTicketForm } from './pages/EditTicket';
+import ViewBookingsPage from "./pages/EditBookings";
 import { AddSeatForm } from "./pages/EditSeats";
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
@@ -70,6 +71,11 @@ const AppRoutes = ({
       <Route
         path="/viewticket"
         element={currentUser ? <AddTicketForm /> : <Navigate to="/login" />}
+      />
+
+      <Route
+        path="/viewbookings"
+        element={currentUser ? <ViewBookingsPage /> : <Navigate to="/login" />}
       />
 
       <Route
