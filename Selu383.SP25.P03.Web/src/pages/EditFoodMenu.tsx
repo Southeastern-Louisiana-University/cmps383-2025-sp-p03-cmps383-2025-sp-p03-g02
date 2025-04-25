@@ -12,111 +12,147 @@ interface FoodItemDto {
 
 export function AddFoodItemForm() {
   const [foodItems, setFoodItems] = useState<FoodItemDto[]>([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [imageUrl, setImageUrl] = useState("");
-  const [category, setCategory] = useState("")
+  const [formData, setFormData] = useState<FoodItemDto>({
+    name: "",
+    description: "",
+    price: 0,
+    imageUrl: "",
+    category: ""
+  });
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [operation, setOperation] = useState("add"); 
-  const [selectedFoodItem, setSelectedFoodItem] = useState<FoodItemDto | null>(null);
+  const [operation, setOperation] = useState<"add" | "edit">("add");
+  const [editingFoodItemId, setEditingFoodItemId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchFoodItems();
   }, []);
 
-  const fetchFoodItems = () => {
-    fetch("api/fooditem")
-      .then((response) => response.json())
-      .then((data: FoodItemDto[]) => setFoodItems(data))
-      .catch(() => {
-        setFormError("Failed to fetch food items.");
-      });
+  const fetchFoodItems = async () => {
+    try {
+      const response = await fetch("api/fooditem");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setFoodItems(Array.isArray(data) ? data : []);
+    } catch (error: any) {
+      setFormError(error.message || "Failed to fetch food items");
+      console.error("Fetch error:", error);
+    }
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: name === "price" ? parseFloat(value) || 0 : value 
+    }));
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
 
     setFormError("");
     setLoading(true);
 
-    const foodItem = { name, description, price, imageUrl, category };
+    try {
+      let response;
+      const url = operation === "edit" && editingFoodItemId 
+        ? `api/fooditem/${editingFoodItemId}`
+        : "api/fooditem";
 
-    if (operation === "add") {
-  
-      fetch("api/fooditem", {
-        method: "POST",
-        body: JSON.stringify(foodItem),
+      response = await fetch(url, {
+        method: operation === "edit" ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setFoodItems([...foodItems, data]);
-          resetForm();
-        })
-        .catch(() => setFormError("Failed to add food item"))
-        .finally(() => setLoading(false));
+        body: JSON.stringify(operation === "edit" 
+          ? { ...formData, id: editingFoodItemId } 
+          : formData)
+      });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Failed to ${operation} food item`);
+      }
 
-    } else if (operation === "edit" && selectedFoodItem?.id) {
-    
-      fetch(`api/fooditem/${selectedFoodItem.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ ...foodItem, id: selectedFoodItem.id }),
-        headers: { "Content-Type": "application/json" },
-      })
-        .then((response) => response.json())
-        .then(() => {
-         
-          const updatedItems = foodItems.map((item) =>
-            item.id === selectedFoodItem.id ? { ...selectedFoodItem, ...foodItem } : item
-          );
-          setFoodItems(updatedItems);
-          resetForm();
-        })
-        .catch(() => setFormError("Failed to update food item"))
-        .finally(() => setLoading(false));
+      await fetchFoodItems();
+      resetForm();
+    } catch (error: any) {
+      setFormError(error.message || `Failed to ${operation} food item`);
+      console.error("Submission error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (id: number) => {
-    fetch(`api/fooditem/${id}`, {
-      method: "DELETE",
-    })
-      .then(() => {
-        setFoodItems(foodItems.filter((item) => item.id !== id));
-      })
-      .catch(() => setFormError("Failed to delete food item"));
+  const handleEdit = (foodItem: FoodItemDto) => {
+    setOperation("edit");
+    setEditingFoodItemId(foodItem.id || null);
+    setFormData({
+      name: foodItem.name,
+      description: foodItem.description,
+      price: foodItem.price,
+      imageUrl: foodItem.imageUrl,
+      category: foodItem.category
+    });
+  };
+
+  const handleDelete = async (id: number) => {
+    if (loading) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this food item?");
+    if (!confirmDelete) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`api/fooditem/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to delete food item");
+      }
+
+      setFoodItems(prev => prev.filter(item => item.id !== id));
+    } catch (error: any) {
+      setFormError(error.message || "Failed to delete food item");
+      console.error("Delete error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
-    setName("");
-    setDescription("");
-    setPrice(0);
-    setImageUrl("");
-    setSelectedFoodItem(null);
+    setFormData({
+      name: "",
+      description: "",
+      price: 0,
+      imageUrl: "",
+      category: ""
+    });
     setOperation("add");
+    setEditingFoodItemId(null);
   };
 
   return (
-    <div>
-      <form className="form-example" onSubmit={handleFormSubmit}>
-        <div className="form-example">
-          <label htmlFor="operation">Select Operation: </label>
-          <select
-            name="operation"
-            id="operation"
-            value={operation}
-            onChange={(e) => setOperation(e.target.value)}
-          >
-            <option value="add">Add Food Item</option>
-            <option value="edit">Edit Food Item</option>
-            <option value="delete">Delete Food Item</option>
-          </select>
-        </div>
+    <div className="food-form">
+      <h1>Manage Food Items</h1>
+      <div className="form-example">
+        <label htmlFor="operation">Operation: </label>
+        <select
+          id="operation"
+          value={operation}
+          onChange={(e) => setOperation(e.target.value as "add" | "edit")}
+        >
+          <option value="add">Add Food Item</option>
+          <option value="edit">Edit Food Item</option>
+        </select>
+      </div>
 
+      <form onSubmit={handleFormSubmit}>
         <div className="form-example">
           <label htmlFor="name">Food Name: </label>
           <input
@@ -124,20 +160,22 @@ export function AddFoodItemForm() {
             name="name"
             id="name"
             required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={formData.name}
+            onChange={handleInputChange}
           />
         </div>
+
         <div className="form-example">
           <label htmlFor="description">Description: </label>
           <textarea
             name="description"
             id="description"
             required
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={formData.description}
+            onChange={handleInputChange}
           />
         </div>
+
         <div className="form-example">
           <label htmlFor="price">Price: </label>
           <input
@@ -145,10 +183,13 @@ export function AddFoodItemForm() {
             name="price"
             id="price"
             required
-            value={price}
-            onChange={(e) => setPrice(parseFloat(e.target.value))}
+            min="0"
+            step="0.01"
+            value={formData.price}
+            onChange={handleInputChange}
           />
         </div>
+
         <div className="form-example">
           <label htmlFor="imageUrl">Image URL: </label>
           <input
@@ -156,28 +197,36 @@ export function AddFoodItemForm() {
             name="imageUrl"
             id="imageUrl"
             required
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
+            value={formData.imageUrl}
+            onChange={handleInputChange}
           />
-          <div className="form-example">
-            <label htmlFor="category">Category: </label>
-            <input
-              type="text"
-              name="category"
-              id="category"
-              required
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            />
-          </div>
         </div>
-        {formError ? <p style={{ color: "red" }}>{formError}</p> : null}
+
+        <div className="form-example">
+          <label htmlFor="category">Category: </label>
+          <input
+            type="text"
+            name="category"
+            id="category"
+            required
+            value={formData.category}
+            onChange={handleInputChange}
+          />
+        </div>
+
+        {formError && <p className="error-message">{formError}</p>}
+
         <div className="form-example">
           <input
             type="submit"
             value={loading ? "Loading..." : operation === "add" ? "Add Food Item" : "Update Food Item"}
             disabled={loading}
           />
+          {operation === "edit" && (
+            <button type="button" onClick={resetForm} disabled={loading}>
+              Cancel
+            </button>
+          )}
         </div>
       </form>
 
@@ -199,15 +248,45 @@ export function AddFoodItemForm() {
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>{item.name}</td>
-              <td>{item.description}</td>
-              <td>{item.price}</td>
-              <td><img src={item.imageUrl} alt={item.name} style={{ width: "50px", height: "50px" }} /></td>
+              <td className="description-cell">{item.description}</td>
+              <td>${item.price.toFixed(2)}</td>
+              <td style={{ textAlign: 'center', padding: '5px' }}>
+                {item.imageUrl && (
+                  <div style={{ 
+                    width: '80px', 
+                    height: '80px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto'
+                  }}>
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain',
+                        borderRadius: '4px'
+                      }}
+                    />
+                  </div>
+                )}
+              </td>
               <td>{item.category}</td>
               <td>
-                <button onClick={() => { setOperation("edit"); setSelectedFoodItem(item); setName(item.name); setDescription(item.description); setPrice(item.price); setImageUrl(item.imageUrl); setCategory(item.category); }}>
+                <button
+                  onClick={() => handleEdit(item)}
+                  disabled={loading}
+                >
                   Edit
                 </button>
-                <button onClick={() => item.id && handleDelete(item.id)}>Delete</button>
+                <button
+                  onClick={() => item.id && handleDelete(item.id)}
+                  disabled={loading}
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
