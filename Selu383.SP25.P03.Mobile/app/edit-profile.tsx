@@ -1,12 +1,50 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View, Text, TextInput, Alert, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, View, Text, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import * as Location from 'expo-location';
 
-//Theater location data
-const THEATERS = [
-  { id: '1', name: "Lion's Den New York", address: '570 2nd Ave, New York, NY 10016', distance: '2.3 mi away' },
-  { id: '2', name: "Lion's Den New Orleans", address: '636 N Broad St, New Orleans, LA 70119', distance: '44.2 mi away' },
-  { id: '3', name: "Lion's Den Los Angeles", address: '4020 Marlton Ave, Los Angeles, CA 90008', distance: '2547.8 mi away' },
+type Theater = {
+  id: string;
+  name: string;
+  address: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  distance: string | null;
+};
+
+const THEATERS: Theater[] = [
+  { 
+    id: '1', 
+    name: "Lion's Den New York", 
+    address: '570 2nd Ave, New York, NY 10016', 
+    coordinates: {
+      latitude: 40.7478,
+      longitude: -73.9756
+    },
+    distance: null 
+  },
+  { 
+    id: '2', 
+    name: "Lion's Den New Orleans", 
+    address: '636 N Broad St, New Orleans, LA 70119', 
+    coordinates: {
+      latitude: 29.9682,
+      longitude: -90.0777
+    },
+    distance: null 
+  },
+  { 
+    id: '3', 
+    name: "Lion's Den Los Angeles", 
+    address: '4020 Marlton Ave, Los Angeles, CA 90008', 
+    coordinates: {
+      latitude: 34.0118,
+      longitude: -118.3378
+    },
+    distance: null 
+  },
 ];
 
 export default function EditProfileScreen() {
@@ -19,6 +57,82 @@ export default function EditProfileScreen() {
     phone: '555-123-4567',
     defaultTheater: '2' 
   });
+
+  const [theaters, setTheaters] = useState<Theater[]>(THEATERS);
+  const [loading, setLoading] = useState(true);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getLocationAndCalculateDistances();
+  }, []);
+
+  async function getLocationAndCalculateDistances() {
+    setLoading(true);
+    
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    
+    if (status !== 'granted') {
+      setLocationError('Location permission denied');
+      // Use default distances
+      setTheaters(THEATERS.map(theater => ({
+        ...theater,
+        distance: 'Unknown distance'
+      })));
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Get current location
+      const location = await Location.getCurrentPositionAsync({});
+      
+      // Calculate distances and update theaters
+      const theatersWithDistances = THEATERS.map(theater => {
+        const distance = calculateDistance(
+          location.coords.latitude,
+          location.coords.longitude,
+          theater.coordinates.latitude,
+          theater.coordinates.longitude
+        );
+        
+        return {
+          ...theater,
+          distance: `${distance.toFixed(1)} mi away`
+        };
+      });
+      
+      setTheaters(theatersWithDistances);
+    } catch (error) {
+      setLocationError('Could not get your location');
+      setTheaters(THEATERS.map(theater => ({
+        ...theater,
+        distance: 'Unknown distance'
+      })));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Calculate distance between two points
+  function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 3958.8; 
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+    
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    
+    return distance;
+  }
+
+  function toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
 
   const handleSave = () => {
     Alert.alert(
@@ -40,7 +154,6 @@ export default function EditProfileScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      {}
       <Stack.Screen options={{ 
         title: "Edit Profile",
         headerShown: true,
@@ -96,27 +209,40 @@ export default function EditProfileScreen() {
           Set your default theater for movie browsing and ticket purchases.
         </Text>
         
-        {THEATERS.map(theater => (
-          <TouchableOpacity 
-            key={theater.id}
-            style={[
-              styles.theaterItem,
-              userData.defaultTheater === theater.id ? styles.selectedTheater : null
-            ]}
-            onPress={() => selectTheater(theater.id)}
-          >
-            <View style={styles.theaterInfo}>
-              <Text style={styles.theaterName}>{theater.name}</Text>
-              <Text style={styles.theaterAddress}>{theater.address}</Text>
-              <Text style={styles.theaterDistance}>{theater.distance}</Text>
-            </View>
-            {userData.defaultTheater === theater.id && (
-              <View style={styles.selectedIndicator}>
-                <Text style={styles.selectedText}>Default</Text>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#E8EEF2" />
+            <Text style={styles.loadingText}>Calculating distances...</Text>
+          </View>
+        ) : (
+          theaters.map(theater => (
+            <TouchableOpacity 
+              key={theater.id}
+              style={[
+                styles.theaterItem,
+                userData.defaultTheater === theater.id ? styles.selectedTheater : null
+              ]}
+              onPress={() => selectTheater(theater.id)}
+            >
+              <View style={styles.theaterInfo}>
+                <Text style={styles.theaterName}>{theater.name}</Text>
+                <Text style={styles.theaterAddress}>{theater.address}</Text>
+                <Text style={styles.theaterDistance}>{theater.distance}</Text>
               </View>
-            )}
-          </TouchableOpacity>
-        ))}
+              {userData.defaultTheater === theater.id && (
+                <View style={styles.selectedIndicator}>
+                  <Text style={styles.selectedText}>Default</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          ))
+        )}
+        
+        {locationError && (
+          <Text style={styles.errorText}>
+            {locationError}. Distances may not be accurate.
+          </Text>
+        )}
       </View>
       
       <TouchableOpacity 
@@ -126,7 +252,6 @@ export default function EditProfileScreen() {
         <Text style={styles.saveButtonText}>Save Changes</Text>
       </TouchableOpacity>
       
-      {}
       <View style={{height: 30}} />
     </ScrollView>
   );
@@ -230,5 +355,21 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#E8EEF2',
+    fontSize: 14,
+  },
+  errorText: {
+    color: '#FF8A80',
+    marginTop: 8,
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });
