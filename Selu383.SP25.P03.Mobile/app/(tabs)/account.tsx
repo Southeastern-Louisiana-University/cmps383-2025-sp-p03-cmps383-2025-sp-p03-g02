@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Text, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, TouchableOpacity, View, Text, Alert, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTheaterMode } from '@/components/TheaterMode';
 
 const USER = {
   name: 'John Doe',
@@ -9,6 +10,8 @@ const USER = {
 
 export default function AccountScreen() {
   const router = useRouter();
+  const { isTheaterMode, toggleTheaterMode } = useTheaterMode();
+  const [isEnabled, setIsEnabled] = useState(isTheaterMode);
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "You have been signed out.");
@@ -22,13 +25,37 @@ export default function AccountScreen() {
     }
   };
 
+  const handleToggle = () => {
+    setIsEnabled(!isEnabled);
+    toggleTheaterMode();
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.pageTitle}>My Account</Text>
+    <View style={[
+      styles.container,
+      isEnabled && { backgroundColor: '#000' }
+    ]}>
+      <Text style={[
+        styles.pageTitle,
+        isEnabled && { color: '#FFF' }
+      ]}>My Account</Text>
       
       <View style={styles.profileCard}>
         <Text style={styles.userName}>{USER.name}</Text>
         <Text style={styles.userEmail}>{USER.email}</Text>
+      </View>
+      
+      {/* Theater Mode Toggle */}
+      <View style={styles.menuItem}>
+        <View style={styles.theaterModeRow}>
+          <Text style={styles.menuText}>Theater Mode</Text>
+          <Switch
+            value={isEnabled}
+            onValueChange={handleToggle}
+            trackColor={{ false: "#767577", true: "#0C6184" }}
+            thumbColor={isEnabled ? "#E8EEF2" : "#f4f3f4"}
+          />
+        </View>
       </View>
       
       <TouchableOpacity 
@@ -106,18 +133,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1F3A4D',
   },
-  managementButton: {
-    backgroundColor: '#3498DB',
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  managementText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   signOutButton: {
     backgroundColor: '#E74C3C',
     padding: 16,
@@ -130,4 +145,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  theaterModeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }
 });
