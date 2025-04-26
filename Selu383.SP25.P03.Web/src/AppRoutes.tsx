@@ -54,7 +54,7 @@ const AppRoutes = ({
       />
       <Route
         path="/management"
-        element={currentUser ? <Management /> : <Navigate to="/" />}
+        element={currentUser ? <Management currentUser={currentUser}/> : <Navigate to="/" />}
       />
       <Route
         path="/editmenu"
@@ -70,12 +70,12 @@ const AppRoutes = ({
       />
       <Route
         path="/viewticket"
-        element={currentUser ? <AddTicketForm /> : <Navigate to="/login" />}
+        element={currentUser ? <AddTicketForm /> : <Navigate to="/" />}
       />
 
       <Route
         path="/viewbookings"
-        element={currentUser ? <ViewBookingsPage /> : <Navigate to="/login" />}
+        element={currentUser ? <ViewBookingsPage /> : <Navigate to="/" />}
       />
 
       <Route
