@@ -40,7 +40,7 @@ const AppRoutes = ({
       {/* Protected Routes */}
       <Route
         path="/tickets"
-        element={currentUser ? <Tickets /> : <Navigate to="/" />}
+        element={currentUser ? <Tickets currentUser={currentUser} /> : <Navigate to="/" />}
       />
       <Route
         path="/account"
