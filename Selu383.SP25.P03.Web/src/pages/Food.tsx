@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Food.css";
 import { FaTrash } from "react-icons/fa";
 import { Toast } from "../components/Toast";
@@ -56,6 +57,7 @@ interface OrderDto {
 }
 
 const Food = () => {
+  const navigate = useNavigate();
   const [foodItems, setFoodItems] = useState<FoodItemDto[]>([]);
   const [error, setError] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
@@ -74,55 +76,83 @@ const Food = () => {
   const [allTickets, setAllTickets] = useState<TicketDto[]>([]);
   const [allSeats, setAllSeats] = useState<SeatDto[]>([]);
   const [currentUser, setCurrentUser] = useState<UserDto | null>(null);
-  const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingUser, setLoadingUser] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
 
+  // Track if component is mounted
+  const [isMounted, setIsMounted] = useState(true);
+
   const fetchCurrentUser = async () => {
+    if (!isMounted) return;
+    
     try {
       const response = await fetch("/api/authentication/me");
       if (!response.ok) {
-        throw new Error("Failed to fetch current user");
+        setCurrentUser(null);
+        return;
       }
       const user: UserDto = await response.json();
-      setCurrentUser(user);
-      
-      // Load user-specific cart data
-      const userCart = localStorage.getItem(`cart_${user.id}`);
-      if (userCart) {
-        setCart(JSON.parse(userCart));
-      }
-      
-      const userQuantities = localStorage.getItem(`quantities_${user.id}`);
-      if (userQuantities) {
-        setQuantities(JSON.parse(userQuantities));
+      if (isMounted) {
+        setCurrentUser(user);
+        
+        // Load user-specific cart data
+        const userCart = localStorage.getItem(`cart_${user.id}`);
+        if (userCart) {
+          setCart(JSON.parse(userCart));
+        }
+        
+        const userQuantities = localStorage.getItem(`quantities_${user.id}`);
+        if (userQuantities) {
+          setQuantities(JSON.parse(userQuantities));
+        }
       }
     } catch (error) {
       console.error("Error fetching current user:", error);
-      setCurrentUser(null);
-    } finally {
-      setLoadingUser(false);
+      if (isMounted) {
+        setCurrentUser(null);
+      }
     }
   };
 
   useEffect(() => {
-    fetchCurrentUser();
-    fetchFoodItems();
-    fetchInitialData();
-  }, []);
+    setIsMounted(true);
+    setLoadingUser(true);
+
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          fetchCurrentUser(),
+          fetchFoodItems(),
+          fetchInitialData()
+        ]);
+      } finally {
+        if (isMounted) {
+          setLoadingUser(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      setIsMounted(false);
+    };
+  }, [isMounted]);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     if (currentUser) {
-      // Save user-specific cart data
       localStorage.setItem(`cart_${currentUser.id}`, JSON.stringify(cart));
       localStorage.setItem(`quantities_${currentUser.id}`, JSON.stringify(quantities));
     } else {
-      // Clear cart if no user
-      setCart({});
-      setQuantities({});
+      localStorage.setItem('temp_cart', JSON.stringify(cart));
     }
-  }, [cart, quantities, currentUser]);
+  }, [cart, quantities, currentUser, isMounted]);
 
   useEffect(() => {
+    if (!isMounted) return;
+
     if (currentUser?.id) {
       const filteredTickets = allTickets.filter(ticket => ticket.userId === currentUser.id);
       setUserTickets(filteredTickets);
@@ -143,9 +173,11 @@ const Food = () => {
       setUserTickets([]);
       setAvailableSeats([]);
     }
-  }, [currentUser, allTickets, allSeats]);
+  }, [currentUser, allTickets, allSeats, isMounted]);
 
   const fetchInitialData = async () => {
+    if (!isMounted) return;
+
     try {
       const [ticketsRes, seatsRes, showtimesRes, moviesRes] = await Promise.all([
         fetch("/api/tickets"),
@@ -165,33 +197,45 @@ const Food = () => {
         moviesRes.json()
       ]);
 
-      setAllTickets(tickets);
-      setAllSeats(seats);
-      setShowtimes(showtimes);
-      setMovies(movies);
+      if (isMounted) {
+        setAllTickets(tickets);
+        setAllSeats(seats);
+        setShowtimes(showtimes);
+        setMovies(movies);
+      }
     } catch (error) {
       console.error("Error fetching initial data:", error);
-      setToastMessage("Error loading data. Please try again.");
-      setShowToast(true);
+      if (isMounted) {
+        setToastMessage("Error loading data. Please try again.");
+        setShowToast(true);
+      }
     }
   };
 
   const fetchFoodItems = () => {
+    if (!isMounted) return;
+
     fetch("api/fooditem")
       .then((response) => response.json())
       .then((data: FoodItemDto[]) => {
-        setFoodItems(data);
-        const uniqueCategories = Array.from(
-          new Set(data.map((item) => item.category))
-        );
-        setCategories(["All", ...uniqueCategories]);
+        if (isMounted) {
+          setFoodItems(data);
+          const uniqueCategories = Array.from(
+            new Set(data.map((item) => item.category))
+          );
+          setCategories(["All", ...uniqueCategories]);
+        }
       })
       .catch(() => {
-        setError("Failed to fetch food items.");
+        if (isMounted) {
+          setError("Failed to fetch food items.");
+        }
       });
   };
 
   const handleCheckout = async () => {
+    if (!isMounted) return;
+
     if (!currentUser) {
       setToastMessage("Please log in to complete your order.");
       setShowToast(true);
@@ -220,7 +264,7 @@ const Food = () => {
           quantity: quantity,
           paymentMethod: paymentMethod,
           totalPrice: foodItem.price * quantity,
-          status: "Pending" // Default status
+          status: "Pending"
         };
 
         const response = await fetch("/api/orders", {
@@ -236,20 +280,26 @@ const Food = () => {
       });
 
       await Promise.all(orderPromises);
-      setCart({});
-      setQuantities({});
-      if (currentUser) {
-        localStorage.removeItem(`cart_${currentUser.id}`);
-        localStorage.removeItem(`quantities_${currentUser.id}`);
+      if (isMounted) {
+        setCart({});
+        setQuantities({});
+        if (currentUser) {
+          localStorage.removeItem(`cart_${currentUser.id}`);
+          localStorage.removeItem(`quantities_${currentUser.id}`);
+        }
+        setShowCart(false);
+        setToastMessage("Order placed successfully! Your food will be delivered shortly.");
       }
-      setShowCart(false);
-      setToastMessage("Order placed successfully! Your food will be delivered shortly.");
     } catch (error) {
       console.error("Checkout failed:", error);
-      setToastMessage("Failed to place your order. Please try again.");
+      if (isMounted) {
+        setToastMessage("Failed to place your order. Please try again.");
+      }
     } finally {
-      setIsCheckingOut(false);
-      setTimeout(() => setShowToast(false), 2750);
+      if (isMounted) {
+        setIsCheckingOut(false);
+        setTimeout(() => setShowToast(false), 2750);
+      }
     }
   };
 
@@ -293,8 +343,12 @@ const Food = () => {
       setToastMessage("Please log in to order food.");
       setShowToast(true);
       setTimeout(() => {
-        setShowToast(false);
-      }, 2750);
+        if (isMounted) {
+          setShowToast(false);
+          // Redirect to login page
+          navigate('/login', { state: { from: 'food' } });
+        }
+      }, 1500);
       return;
     }
 
@@ -321,7 +375,7 @@ const Food = () => {
   };
 
   if (loadingUser) {
-    return <div>Loading user data...</div>;
+    return <div className="loading-container">Loading menu...</div>;
   }
 
   return (
@@ -368,8 +422,7 @@ const Food = () => {
               onClick={() => addToCart(item.id)}
               disabled={(quantities[item.id] || 0) === 0}
             >
-              Add to Cart
-              {quantities[item.id] > 0 ? ` (${quantities[item.id]})` : ""}
+              {currentUser ? `Add to Cart${quantities[item.id] > 0 ? ` (${quantities[item.id]})` : ''}` : 'Log In to Order'}
             </button>
           </div>
         ))}
@@ -377,7 +430,7 @@ const Food = () => {
   
       {Object.keys(cart).length > 0 && (
         <button className="view-cart-btn" onClick={() => setShowCart(true)}>
-          View Cart
+          View Cart ({Object.values(cart).reduce((a, b) => a + b, 0)} items)
         </button>
       )}
   
@@ -432,7 +485,13 @@ const Food = () => {
               )
             ) : (
               <div className="seat-warning">
-                Please log in to see your available seats.
+                Please log in to complete your order.
+                <button 
+                  className="login-redirect-btn"
+                  onClick={() => navigate('/login', { state: { from: 'food' } })}
+                >
+                  Go to Login
+                </button>
               </div>
             )}
   
@@ -509,24 +568,19 @@ const Food = () => {
             
             <button
               className={`checkout-btn ${
-                availableSeats.length === 0 || !selectedSeatId ? 'disabled' : ''
+                (!currentUser || availableSeats.length === 0 || !selectedSeatId) ? 'disabled' : ''
               }`}
               onClick={handleCheckout}
               disabled={
+                !currentUser ||
                 availableSeats.length === 0 || 
                 !selectedSeatId || 
                 isCheckingOut ||
                 Object.keys(cart).length === 0
               }
             >
-              {isCheckingOut ? 'Processing...' : 'Checkout'}
+              {isCheckingOut ? 'Processing...' : currentUser ? 'Checkout' : 'Log In to Checkout'}
             </button>
-  
-            {availableSeats.length === 0 && currentUser && (
-              <p className="seat-warning">
-                You need to have a booked seat to place an order
-              </p>
-            )}
           </div>
         </div>
       )}
