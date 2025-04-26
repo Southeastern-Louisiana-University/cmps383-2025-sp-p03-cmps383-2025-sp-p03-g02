@@ -4,12 +4,13 @@ import Theaters from "./pages/Theaters";
 import Tickets from "./pages/Tickets";
 import Food from "./pages/Food";
 import Account from "./pages/Account";
-
 import Management from "./pages/Management";
 import { AddFoodItemForm } from "./pages/EditFoodMenu";
+import  ViewOrdersPage  from "./pages/EditOrders";
 import { AddMovieForm } from "./pages/EditMovie";
 import { AddShowTimeForm } from "./pages/EditShowTimes";
-// import { AddTicketForm } from './pages/EditTicket';
+import { AddTicketForm } from './pages/EditTicket';
+import ViewBookingsPage from "./pages/EditBookings";
 import { AddSeatForm } from "./pages/EditSeats";
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
@@ -34,7 +35,7 @@ const AppRoutes = ({
       {/* Public Routes */}
       <Route path="/" element={<Movies />} />
       <Route path="/theaters" element={<Theaters />} />
-      <Route path="/food" element={<Food currentUser={currentUser} />} />
+      <Route path="/food" element={<Food />} />
 
       {/* Protected Routes */}
       <Route
@@ -53,19 +54,28 @@ const AppRoutes = ({
       />
       <Route
         path="/management"
-        element={currentUser ? <Management /> : <Navigate to="/" />}
+        element={currentUser ? <Management currentUser={currentUser}/> : <Navigate to="/" />}
       />
       <Route
         path="/editmenu"
         element={currentUser ? <AddFoodItemForm /> : <Navigate to="/" />}
       />
       <Route
+        path="/vieworders"
+        element={currentUser ? <ViewOrdersPage /> : <Navigate to="/" />}
+      />
+      <Route
         path="/editmovie"
         element={currentUser ? <AddMovieForm /> : <Navigate to="/" />}
       />
       <Route
-        path="/editticket"
-        //  element={currentUser ? <AddTicketForm /> : <Navigate to="/login" />}
+        path="/viewticket"
+        element={currentUser ? <AddTicketForm /> : <Navigate to="/" />}
+      />
+
+      <Route
+        path="/viewbookings"
+        element={currentUser ? <ViewBookingsPage /> : <Navigate to="/" />}
       />
 
       <Route

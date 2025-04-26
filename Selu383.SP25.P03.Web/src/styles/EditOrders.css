@@ -1,0 +1,95 @@
+.orders-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .loading, .error {
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+  }
+  
+  .error {
+    color: #d32f2f;
+  }
+  
+  .filter-controls {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-controls label {
+    font-weight: bold;
+  }
+  
+  .filter-controls select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #000000;
+  }
+  
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .orders-table th, .orders-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #000000;
+  }
+  
+  .orders-table th {
+    background-color: #000000;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  
+  .orders-table tr:hover {
+    background-color: #000000;
+  }
+  
+  .orders-table select {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #000000;
+    background-color: rgb(0, 0, 0);
+    cursor: pointer;
+  }
+  
+  .orders-table select:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .delete-btn {
+    padding: 6px 12px;
+    background-color: #f44336;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .delete-btn:hover {
+    background-color: #d32f2f;
+  }
+  
+  .delete-btn:disabled {
+    background-color: #000000;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    .orders-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }

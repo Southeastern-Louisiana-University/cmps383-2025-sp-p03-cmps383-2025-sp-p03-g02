@@ -6,8 +6,9 @@ using Selu383.SP25.P03.Api.Features.Theaters;
 using Selu383.SP25.P03.Api.Features.FoodItem;
 using Selu383.SP25.P03.Api.Features.Movies;
 using Selu383.SP25.P03.Api.Features.Showtimes;
-// using Selu383.SP25.P03.Api.Features.Tickets;
+using Selu383.SP25.P03.Api.Features.Tickets;
 using Selu383.SP25.P03.Api.Features.Seats;
+using Selu383.SP25.P03.Api.Features.Orders;
 
 namespace Selu383.SP25.P03.Api.Data
 {
@@ -21,8 +22,10 @@ namespace Selu383.SP25.P03.Api.Data
         public DbSet<FoodItem> FoodItem { get; set; }
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Showtime> Showtimes { get; set; }
-       // public DbSet<Ticket> Tickets { get; set; }
-       public DbSet<Seat> Seats { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<Seat> Seats { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<FoodItem> FoodItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -33,6 +36,12 @@ namespace Selu383.SP25.P03.Api.Data
                 .HasColumnType("decimal(18,2)"); 
 
             builder.Entity<UserRole>().HasKey(x => new { x.UserId, x.RoleId });
+
+            builder.Entity<Ticket>()
+            .HasOne(t => t.Showtime)
+            .WithMany() 
+            .HasForeignKey(t => t.ShowtimeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<User>()
                 .HasMany(e => e.UserRoles)
