@@ -4,6 +4,10 @@ import Theaters from "./pages/Theaters";
 import Tickets from "./pages/Tickets";
 import Food from "./pages/Food";
 import Account from "./pages/Account";
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import PaymentCancelPage from "./pages/PaymentCancelPage";
+import PaymentDeclinePage from "./pages/PaymentDeclinePage";
 
 import Management from "./pages/Management";
 import { AddFoodItemForm } from "./pages/EditFoodMenu";
@@ -14,7 +18,6 @@ import { AddSeatForm } from "./pages/EditSeats";
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
 import { UserDto } from "./models/UserDto";
-import PaymentPage from "./pages/PaymentPage";
 
 interface AppRoutesProps {
   currentUser?: UserDto;
@@ -35,6 +38,10 @@ const AppRoutes = ({
       <Route path="/" element={<Movies />} />
       <Route path="/theaters" element={<Theaters />} />
       <Route path="/food" element={<Food currentUser={currentUser} />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout/success" element={<PaymentSuccessPage />} />
+      <Route path="/checkout/cancel" element={<PaymentCancelPage />} />
+      <Route path="/checkout/decline" element={<PaymentDeclinePage />} />
 
       {/* Protected Routes */}
       <Route
@@ -77,8 +84,6 @@ const AppRoutes = ({
         path="/editshowtime"
         element={currentUser ? <AddShowTimeForm /> : <Navigate to="/" />}
       />
-
-      <Route path="/payment" element={<PaymentPage />} />
 
       {/* Auth Routes */}
       <Route

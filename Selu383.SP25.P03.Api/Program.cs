@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Selu383.SP25.P03.Api.Data;
+using Selu383.SP25.P03.Api.Features.Payment;
 using Selu383.SP25.P03.Api.Features.Users;
+using Stripe;
 
 namespace Selu383.SP25.P03.Api
 {
@@ -28,6 +30,13 @@ namespace Selu383.SP25.P03.Api
                 });
             });
 
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+
+            StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe")["SecretKey"];
+
+            // NOTE -- Registering Stripe Payment Service
+            // builder.Services.AddScoped<Selu383.SP25.P03.Api.Features.Payment.StripePaymentService>();
+            
             // Add OpenAPI and Razor Pages
             builder.Services.AddOpenApi();
             builder.Services.AddRazorPages();
