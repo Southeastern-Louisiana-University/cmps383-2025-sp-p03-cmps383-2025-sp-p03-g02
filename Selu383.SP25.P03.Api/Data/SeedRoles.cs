@@ -8,16 +8,38 @@ namespace Selu383.SP25.P03.Api.Data
     {
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
-            using (var context = new DataContext(serviceProvider.GetRequiredService<DbContextOptions<DataContext>>()))
+            using (var context = new DataContext(
+                serviceProvider.GetRequiredService<DbContextOptions<DataContext>>()))
             {
-                if (context.Roles.Any())
-                {
-                    return;  
-                }
                 var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
-                await roleManager.CreateAsync(new Role { Name = UserRoleNames.Admin });
-                await roleManager.CreateAsync(new Role { Name = UserRoleNames.User });
-                context.SaveChanges();
+
+                var rolesToSeed = new[]
+                {
+                    UserRoleNames.Admin,    
+                    UserRoleNames.User,     
+                    UserRoleNames.WaitStaff 
+                };
+
+                foreach (var roleName in rolesToSeed)
+                {
+                    // Skip if role already exists
+                    if (!await roleManager.RoleExistsAsync(roleName))
+                    {
+                        await roleManager.CreateAsync(new Role { Name = roleName });
+                        Console.WriteLine($"Created role: {roleName}");
+                    }
+                }
+
+                // Optional: Ensure no old/typo roles linger
+                var allRoles = await roleManager.Roles.ToListAsync();
+                foreach (var role in allRoles)
+                {
+                    if (!rolesToSeed.Contains(role.Name))
+                    {
+                        Console.WriteLine($"Warning: Orphaned role detected: {role.Name}");
+                        // await roleManager.DeleteAsync(role); // Uncomment to auto-clean
+                    }
+                }
             }
         }
     }

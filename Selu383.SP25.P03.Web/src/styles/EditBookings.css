@@ -1,0 +1,209 @@
+.bookings-management-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+  }
+  
+  .loading, .error {
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+  }
+  
+  .error {
+    color: #d32f2f;
+  }
+  
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  
+  .filter-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-control label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .filter-control select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: white;
+    color: #333;
+  }
+  
+  .bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .bookings-table th {
+    background-color: #333;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+    border-bottom: 2px solid #444;
+  }
+  
+  .bookings-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+  }
+  
+  .bookings-table tr:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .bookings-table tr.cancelled {
+    opacity: 0.7;
+    background-color: #f9f9f9;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  
+  .status-badge.confirmed {
+    background-color: #333;
+    color: white;
+  }
+  
+  .status-badge.cancelled {
+    background-color: #ccc;
+    color: #333;
+  }
+  
+  .toggle-qr-btn, .cancel-btn {
+    padding: 6px 10px;
+    margin-right: 5px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  
+  .toggle-qr-btn {
+    background-color: #333;
+    color: white;
+  }
+  
+  .toggle-qr-btn:hover {
+    background-color: #555;
+  }
+  
+  .cancel-btn {
+    background-color: #d32f2f;
+    color: white;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #b71c1c;
+  }
+  
+  .cancel-btn:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+  }
+  
+  .qr-row {
+    background-color: #f9f9f9;
+  }
+  
+  .qr-codes-container {
+    padding: 15px;
+  }
+  
+  .qr-codes-container h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  
+  .ticket-qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
+  }
+  
+  .ticket-qr p {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .text-qr-code {
+    font-family: monospace;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid #333;
+    border-radius: 4px;
+  }
+  
+  .text-qr-code pre {
+    margin: 0;
+    color: #333;
+    font-size: 10px;
+    line-height: 1;
+  }
+  
+  @media (max-width: 768px) {
+    .bookings-table {
+      display: block;
+      overflow-x: auto;
+    }
+    
+    .qr-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .group-ticket {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgb(0, 0, 0);
+  }
+  
+  .group-ticket-info {
+    flex: 1;
+    padding-right: 20px;
+  }
+  
+  .group-ticket-qr {
+    flex-shrink: 0;
+  }
