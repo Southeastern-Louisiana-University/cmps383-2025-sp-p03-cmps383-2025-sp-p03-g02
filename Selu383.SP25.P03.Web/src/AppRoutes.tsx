@@ -36,7 +36,7 @@ const AppRoutes = ({
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Movies />} />
+      <Route path="/" element={<Movies currentUser={currentUser}/>} />
       <Route path="/theaters" element={<Theaters />} />
       <Route path="/food" element={<Food />} />
       <Route path="/checkout" element={<CheckoutPage />} />
