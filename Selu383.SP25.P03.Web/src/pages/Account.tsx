@@ -17,7 +17,7 @@ const Account = ({ currentUser }: AccountProps) => {
       </div>
       <button className="account-btn">Edit Profile</button>
       <button className="account-btn">Payment Methods</button>
-      <button className="account-btn">Help Center</button>
+      {/* <button className="account-btn">Help Center</button> */}
 
       {(currentUser.roles.includes("Admin") || currentUser.roles.includes("WaitStaff")) && (
         <button className="account-btn" onClick={() => navigate("/management")}>

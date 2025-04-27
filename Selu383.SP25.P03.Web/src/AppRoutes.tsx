@@ -4,6 +4,10 @@ import Theaters from "./pages/Theaters";
 import Tickets from "./pages/Tickets";
 import Food from "./pages/Food";
 import Account from "./pages/Account";
+import CheckoutPage from './pages/CheckoutPage';
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import PaymentCancelPage from "./pages/PaymentCancelPage";
+import PaymentDeclinePage from "./pages/PaymentDeclinePage";
 import Management from "./pages/Management";
 import { AddFoodItemForm } from "./pages/EditFoodMenu";
 import  ViewOrdersPage  from "./pages/EditOrders";
@@ -15,7 +19,6 @@ import { AddSeatForm } from "./pages/EditSeats";
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
 import { UserDto } from "./models/UserDto";
-import PaymentPage from "./pages/PaymentPage";
 
 interface AppRoutesProps {
   currentUser?: UserDto;
@@ -33,14 +36,18 @@ const AppRoutes = ({
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Movies />} />
+      <Route path="/" element={<Movies currentUser={currentUser}/>} />
       <Route path="/theaters" element={<Theaters />} />
       <Route path="/food" element={<Food />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout/success" element={<PaymentSuccessPage />} />
+      <Route path="/checkout/cancel" element={<PaymentCancelPage />} />
+      <Route path="/checkout/decline" element={<PaymentDeclinePage />} />
 
       {/* Protected Routes */}
       <Route
         path="/tickets"
-        element={currentUser ? <Tickets /> : <Navigate to="/" />}
+        element={currentUser ? <Tickets currentUser={currentUser} /> : <Navigate to="/" />}
       />
       <Route
         path="/account"
@@ -87,8 +94,6 @@ const AppRoutes = ({
         path="/editshowtime"
         element={currentUser ? <AddShowTimeForm /> : <Navigate to="/" />}
       />
-
-      <Route path="/payment" element={<PaymentPage />} />
 
       {/* Auth Routes */}
       <Route
