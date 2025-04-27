@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import "../styles/Tickets.css";
-import { UserDto } from "../models/UserDto"; // <-- important to import your UserDto
+import { UserDto } from "../models/UserDto";
 
 interface TicketDto {
   id?: number;
@@ -38,7 +38,6 @@ interface MovieDto {
   title: string;
 }
 
-// Add this interface to define props properly
 interface TicketsProps {
   currentUser?: UserDto;
 }
@@ -117,6 +116,7 @@ const Tickets: React.FC<TicketsProps> = ({ currentUser }) => {
         hour: "2-digit",
         minute: "2-digit",
       }),
+      ticketPrice: showtime?.ticketPrice || 0,
     };
   };
 
@@ -125,57 +125,81 @@ const Tickets: React.FC<TicketsProps> = ({ currentUser }) => {
     return seat?.seatNumber || `Seat ${seatId}`;
   };
 
+  const groupTickets = (tickets: TicketDto[]) => {
+    const groups: Record<string, TicketDto[]> = {};
+
+    tickets.forEach((ticket) => {
+      const key = `${ticket.userId}-${ticket.showtimeId}`;
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(ticket);
+    });
+
+    return Object.values(groups);
+  };
+
   if (loading) return <div className="loading">Loading tickets...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!currentUser)
     return <div className="error">Please sign in to view your tickets.</div>;
 
+  const userTickets = tickets.filter(
+    (ticket) => ticket.userId === Number(currentUser.id)
+  );
+  const ticketGroups = groupTickets(userTickets);
+
   return (
     <div className="tickets-container">
       <h1 className="tickets-title">My Tickets</h1>
       <div className="tickets-list">
-        {tickets.filter((ticket) => ticket.userId === Number(currentUser.id))
-          .length === 0 ? (
+        {ticketGroups.length === 0 ? (
           <div className="no-tickets-message">No tickets yet.</div>
         ) : (
-          tickets
-            .filter((ticket) => ticket.userId === Number(currentUser.id))
-            .map((ticket) => {
-              const { movieTitle, theaterName, date, time } = getShowtimeInfo(
-                ticket.showtimeId
-              );
-              const seatNumber = getSeatNumber(ticket.seatId);
+          ticketGroups.map((group, index) => {
+            const { movieTitle, theaterName, date, time, ticketPrice } =
+              getShowtimeInfo(group[0].showtimeId);
+            const seatNumbers = group
+              .map((ticket) => getSeatNumber(ticket.seatId))
+              .join(", ");
+            const totalPrice = ticketPrice * group.length;
 
-              const qrData = JSON.stringify({
-                ticketId: ticket.id,
-                movie: movieTitle,
-                theater: theaterName,
-                date,
-                time,
-                seat: seatNumber,
-              });
+            const qrData = JSON.stringify({
+              groupId: `${group[0].userId}-${group[0].showtimeId}`,
+              movie: movieTitle,
+              theater: theaterName,
+              date,
+              time,
+              seats: seatNumbers,
+              totalTickets: group.length,
+              totalPrice: totalPrice.toFixed(2),
+              ticketIds: group.map((t) => t.id),
+            });
 
-              return (
-                <div key={ticket.id} className="ticket-item">
-                  <h2>{movieTitle}</h2>
-                  <p className="ticket-theater">{theaterName}</p>
-                  <p className="ticket-date-and-time">
-                    {date} • {time}
-                  </p>
-                  <p className="ticket-date-and-time">
-                    Seat: <strong>{seatNumber}</strong>
-                  </p>
-                  <div className="ticket-qr">
-                    <QRCodeSVG
-                      value={qrData}
-                      size={128}
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
+            return (
+              <div key={index} className="ticket-item">
+                <h2>{movieTitle}</h2>
+                <p className="ticket-theater">{theaterName}</p>
+                <p className="ticket-date-and-time">
+                  {date} • {time}
+                </p>
+                <p className="ticket-date-and-time">
+                  Seats: <strong>{seatNumbers}</strong>
+                </p>
+                <p className="ticket-date-and-time">
+                  Total Price: <strong>${totalPrice.toFixed(2)}</strong>
+                </p>
+                <div className="ticket-qr">
+                  <QRCodeSVG
+                    value={qrData}
+                    size={180}
+                    level="H"
+                    includeMargin={true}
+                  />
                 </div>
-              );
-            })
+              </div>
+            );
+          })
         )}
       </div>
     </div>
