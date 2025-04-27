@@ -38,7 +38,7 @@ const AppRoutes = ({
       {/* Public Routes */}
       <Route path="/" element={<Movies />} />
       <Route path="/theaters" element={<Theaters />} />
-      <Route path="/food" element={<Food currentUser={currentUser} />} />
+      <Route path="/food" element={<Food />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/checkout/success" element={<PaymentSuccessPage />} />
       <Route path="/checkout/cancel" element={<PaymentCancelPage />} />
