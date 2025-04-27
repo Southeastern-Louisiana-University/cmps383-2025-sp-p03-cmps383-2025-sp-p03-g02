@@ -1,37 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { useNavigate } from 'react-router-dom'; 
 
 const CheckoutPage: React.FC = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [stripeInstance, setStripeInstance] = useState<any>(null);
-    
-    useEffect(() => {
-        const fetchConfig = async () => {
-          try {
-            const response = await fetch('http://localhost:5249/api/payment/config');
-            const { publishableKey } = await response.json();
-            
-            if (publishableKey) {
-              const stripeObj = await loadStripe(publishableKey);
-              setStripeInstance(stripeObj);
-            }
-          } catch (error) {
-            console.error("Failed to load Stripe configuration", error);
-          }
-        };
-        
-        fetchConfig();
-      }, []);
+  const navigate = useNavigate(); 
+  const [isLoading, setIsLoading] = useState(false);
+  const [stripeInstance, setStripeInstance] = useState<any>(null);
   
- 
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch('http://localhost:5249/api/payment/config');
+        const { publishableKey } = await response.json();
+        
+        if (publishableKey) {
+          const stripeObj = await loadStripe(publishableKey);
+          setStripeInstance(stripeObj);
+        }
+      } catch (error) {
+        console.error("Failed to load Stripe configuration", error);
+      }
+    };
+    
+    fetchConfig();
+  }, []);
+  
   const handleCheckout = async () => {
     if (!stripeInstance) {
       alert('Payment system is still initializing. Please try again in a moment.');
       return;
     }
-   
+    
     setIsLoading(true);
-   
+    
     try {
       // NOTE -- Making API call to backend to create a checkout session
       const response = await fetch('http://localhost:5249/api/payment/createcheckoutsession', {
@@ -40,29 +41,40 @@ const CheckoutPage: React.FC = () => {
           'Content-Type': 'application/json',
         },
       });
-     
+      
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        console.error('Error:', errorData.error);
+        
+        // NOTE -- Handle the decline redirect
+        if (errorData.redirectUrl) {
+          window.location.href = errorData.redirectUrl;
+          return;
+        }
+        
+        alert('Payment processing error. Please try again or contact support.');
+        setIsLoading(false);
+        return;
       }
-     
+      
       const session = await response.json();
-     
+      
       const result = await stripeInstance.redirectToCheckout({
         sessionId: session.id
       });
-     
+      
       if (result.error) {
         console.error(result.error.message);
-        alert(result.error.message);
+        navigate('/checkout/decline');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Payment processing error. Please try again or contact support.');
+      navigate('/checkout/decline');
     } finally {
       setIsLoading(false);
     }
   };
- 
+  
   return (
     <div className="container mt-3">
       <div className="py-3 text-center">
@@ -85,6 +97,5 @@ const CheckoutPage: React.FC = () => {
     </div>
   );
 };
-
 
 export default CheckoutPage;

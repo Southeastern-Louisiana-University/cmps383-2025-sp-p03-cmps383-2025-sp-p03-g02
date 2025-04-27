@@ -5,28 +5,39 @@ const PaymentSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8 text-center">
-          <div className="card p-4 shadow-sm">
-            <div className="mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="green" 
-                   className="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-              </svg>
-            </div>
-            <h2 className="mb-3">Payment Successful!</h2>
-            <p className="lead mb-4">Thank you for your purchase. Your transaction has been completed successfully.</p>
-            
-            <button 
-              className="btn btn-primary"
-              onClick={() => navigate('/')}
-            >
-              Return to Home
-            </button>
-          </div>
-        </div>
+    <div className="d-flex flex-column align-items-center justify-content-center" 
+         style={{ minHeight: "calc(100vh - 100px)", padding: "20px" }}>
+      <div className="text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
       </div>
+      
+      <h2 className="text-center mb-3" style={{ color: '#0d6efd', fontWeight: 'bold' }}>
+        Payment Successful
+      </h2>
+      
+      <p className="text-center text-muted mb-3">
+        Thank you for your payment. Your order is being processed.
+      </p>
+      
+      <div className="mb-3">
+        <span>Amount Paid: </span>
+        <span>${"99.99"}</span>
+      </div>
+      
+      <button 
+        className="btn btn-danger"
+        onClick={() => navigate('/')}
+        style={{ 
+          width: '300px', 
+          backgroundColor: '#dc3545',
+          padding: '10px'
+        }}
+      >
+        Return to Home Page
+      </button>
     </div>
   );
 };

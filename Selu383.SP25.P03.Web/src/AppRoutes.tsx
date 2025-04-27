@@ -7,6 +7,7 @@ import Account from "./pages/Account";
 import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
+import PaymentDeclinePage from "./pages/PaymentDeclinePage";
 
 import Management from "./pages/Management";
 import { AddFoodItemForm } from "./pages/EditFoodMenu";
@@ -40,6 +41,7 @@ const AppRoutes = ({
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/checkout/success" element={<PaymentSuccessPage />} />
       <Route path="/checkout/cancel" element={<PaymentCancelPage />} />
+      <Route path="/checkout/decline" element={<PaymentDeclinePage />} />
 
       {/* Protected Routes */}
       <Route

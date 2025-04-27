@@ -61,7 +61,10 @@ namespace Selu383.SP25.P03.Api.Controllers
             }
             catch (StripeException e)
             {
-                return BadRequest(new { error = e.Message });
+                return BadRequest(new { 
+                    error = e.Message,
+                    redirectUrl = "http://localhost:5173/checkout/decline"  
+                    });
             }
         }
     }
