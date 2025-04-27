@@ -1,5 +1,6 @@
 import "../styles/Movies.css";
 import { useState, useEffect } from "react";
+import { UserDto } from "../models/UserDto";
 
 interface Movie {
   id: number;
@@ -9,11 +10,14 @@ interface Movie {
   category: string;
 }
 
-interface Showtime {
+interface ShowtimeDto {
   id: number;
   movieId: number;
+  showDate: string;
+  showTime: string;
   showtimeDate: string;
-  price?: number;
+  ticketPrice: number;
+  theaterId: number;
 }
 
 interface Seat {
@@ -23,7 +27,6 @@ interface Seat {
   isBooked: boolean;
   isSelected?: boolean;
 }
-import { UserDto } from "../models/UserDto"; // <-- (You already have this model)
 
 interface MoviesProps {
   currentUser?: UserDto;
@@ -38,8 +41,8 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
   const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
 
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [showtimes, setShowtimes] = useState<Showtime[]>([]);
-  const [selectedShowtime, setSelectedShowtime] = useState<Showtime | null>(
+  const [showtimes, setShowtimes] = useState<ShowtimeDto[]>([]);
+  const [selectedShowtime, setSelectedShowtime] = useState<ShowtimeDto | null>(
     null
   );
   const [seats, setSeats] = useState<Seat[]>([]);
@@ -47,8 +50,7 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [bookingComplete, setBookingComplete] = useState<boolean>(false);
   const [showBookingModal, setShowBookingModal] = useState<boolean>(false);
-
-  const DEFAULT_PRICE = 12.5;
+  const [paymentMethod, setPaymentMethod] = useState<string>("Credit Card");
 
   useEffect(() => {
     fetchMovies();
@@ -56,9 +58,8 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
   }, []);
 
   useEffect(() => {
-    if (selectedShowtime) {
-      const price = selectedShowtime.price || DEFAULT_PRICE;
-      setTotalPrice(selectedSeats.length * price);
+    if (selectedShowtime && selectedShowtime.ticketPrice) {
+      setTotalPrice(selectedSeats.length * selectedShowtime.ticketPrice);
     }
   }, [selectedSeats, selectedShowtime]);
 
@@ -87,23 +88,8 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
   const fetchShowtimes = () => {
     fetch("/api/showtimes")
       .then((response) => response.json())
-      .then((data: Showtime[]) => {
-        const showtimesWithPrices = data.map((showtime) => {
-          if (!showtime.price) {
-            const date = new Date(showtime.showtimeDate);
-            const hour = date.getHours();
-            let price = DEFAULT_PRICE;
-
-            if (hour < 12) price = 8.5;
-            else if (hour < 17) price = 10.5;
-            else price = 12.5;
-
-            return { ...showtime, price };
-          }
-          return showtime;
-        });
-
-        setShowtimes(showtimesWithPrices);
+      .then((data: ShowtimeDto[]) => {
+        setShowtimes(data);
       })
       .catch(() => {
         setMessage("Failed to fetch showtimes.");
@@ -194,7 +180,7 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
               userId: Number(currentUser.id),
               showtimeId: selectedShowtime.id,
               seatId: seat.id,
-              paymentMethod: "Credit Card", // or "Cash" or whatever you want to default
+              paymentMethod: paymentMethod,
             }),
           })
         )
@@ -237,7 +223,6 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
         <div className="row-label">{row}</div>
         <div className="seats">
           {seatsByRow[row]
-
             .sort((a, b) => {
               const numA = parseInt(a.seatNumber.substring(1));
               const numB = parseInt(b.seatNumber.substring(1));
@@ -371,7 +356,7 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
                         }`}
                         onClick={() => setSelectedShowtime(showtime)}
                       >
-                        {date} - {time} - ${showtime.price?.toFixed(2)}
+                        {date} - {time} - ${showtime.ticketPrice?.toFixed(2)}
                       </button>
                     );
                   })}
@@ -414,6 +399,18 @@ const Movies: React.FC<MoviesProps> = ({ currentUser }) =>  {
                         .join(", ") || "None"}
                     </p>
                     <p>Total: ${totalPrice.toFixed(2)}</p>
+                    
+                    <div className="payment-method-section">
+                      <label htmlFor="payment-method">Payment Method:</label>
+                      <input
+                        type="text"
+                        id="payment-method"
+                        value={paymentMethod}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        placeholder="Enter payment method"
+                      />
+                    </div>
+
                     <button
                       className="book-button"
                       onClick={handleBooking}
