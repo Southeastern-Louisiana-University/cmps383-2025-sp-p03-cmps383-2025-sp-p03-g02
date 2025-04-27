@@ -11,6 +11,9 @@ jobs:
       - name: Warm up URL
         run: curl -s ${{ github.event.deployment_status.environment_url }}/api/theaters
       - name: Test theaters API
-        run: curl -sSf ${{ github.event.deployment_status.environment_url }}/api/theaters
+        run: |
+          for i in {1..5}; do
+            curl -sSf ${{ github.event.deployment_status.environment_url }}/api/theaters && break || sleep 5
+          done
       - name: Test React
         run: curl -sSf ${{ github.event.deployment_status.environment_url }}/index.html
