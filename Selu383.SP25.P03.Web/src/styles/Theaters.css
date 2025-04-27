@@ -1,4 +1,4 @@
-/* Reset and base styles */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -12,7 +12,7 @@
     line-height: 1.6;
   }
   
-  /* Theaters container and header */
+  
   .theaters-container {
     max-width: 1200px;
     margin: 40px auto;
@@ -48,14 +48,14 @@
     font-weight: 500;
   }
   
-  /* Theaters list */
+
   .theaters-list {
     display: flex;
     flex-direction: column;
     gap: 24px;
   }
   
-  /* Theater card */
+  
   .theater-item {
     background: white;
     border-radius: 12px;
@@ -116,7 +116,7 @@
     transition: transform 0.3s ease;
   }
   
-  /* Details container */
+
   .details-container {
     padding: 0 24px 24px;
     border-top: 1px solid #eaeef2;
@@ -143,7 +143,7 @@
     padding-left: 2px;
   }
   
-  /* Amenities */
+
   .amenities-container {
     display: flex;
     flex-wrap: wrap;
@@ -161,7 +161,7 @@
     display: inline-block;
   }
   
-  /* Buttons */
+ 
   .buttons-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -206,7 +206,6 @@
     height: 18px;
   }
   
-  /* Responsive adjustments */
   @media (max-width: 768px) {
     .theaters-title {
       font-size: 30px;
