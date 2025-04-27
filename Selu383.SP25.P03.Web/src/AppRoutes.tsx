@@ -8,12 +8,13 @@ import CheckoutPage from './pages/CheckoutPage';
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
 import PaymentDeclinePage from "./pages/PaymentDeclinePage";
-
 import Management from "./pages/Management";
 import { AddFoodItemForm } from "./pages/EditFoodMenu";
+import  ViewOrdersPage  from "./pages/EditOrders";
 import { AddMovieForm } from "./pages/EditMovie";
 import { AddShowTimeForm } from "./pages/EditShowTimes";
-// import { AddTicketForm } from './pages/EditTicket';
+import { AddTicketForm } from './pages/EditTicket';
+import ViewBookingsPage from "./pages/EditBookings";
 import { AddSeatForm } from "./pages/EditSeats";
 import { LoginForm } from "./pages/LoginForm";
 import { SignUpForm } from "./pages/SignUpForm";
@@ -46,7 +47,7 @@ const AppRoutes = ({
       {/* Protected Routes */}
       <Route
         path="/tickets"
-        element={currentUser ? <Tickets /> : <Navigate to="/" />}
+        element={currentUser ? <Tickets currentUser={currentUser} /> : <Navigate to="/" />}
       />
       <Route
         path="/account"
@@ -60,19 +61,28 @@ const AppRoutes = ({
       />
       <Route
         path="/management"
-        element={currentUser ? <Management /> : <Navigate to="/" />}
+        element={currentUser ? <Management currentUser={currentUser}/> : <Navigate to="/" />}
       />
       <Route
         path="/editmenu"
         element={currentUser ? <AddFoodItemForm /> : <Navigate to="/" />}
       />
       <Route
+        path="/vieworders"
+        element={currentUser ? <ViewOrdersPage /> : <Navigate to="/" />}
+      />
+      <Route
         path="/editmovie"
         element={currentUser ? <AddMovieForm /> : <Navigate to="/" />}
       />
       <Route
-        path="/editticket"
-        //  element={currentUser ? <AddTicketForm /> : <Navigate to="/login" />}
+        path="/viewticket"
+        element={currentUser ? <AddTicketForm /> : <Navigate to="/" />}
+      />
+
+      <Route
+        path="/viewbookings"
+        element={currentUser ? <ViewBookingsPage /> : <Navigate to="/" />}
       />
 
       <Route
