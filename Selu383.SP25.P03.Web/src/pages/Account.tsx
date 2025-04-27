@@ -19,7 +19,7 @@ const Account = ({ currentUser }: AccountProps) => {
       <button className="account-btn">Payment Methods</button>
       {/* <button className="account-btn">Help Center</button> */}
 
-      {currentUser.roles.includes("Admin") && (
+      {(currentUser.roles.includes("Admin") || currentUser.roles.includes("WaitStaff")) && (
         <button className="account-btn" onClick={() => navigate("/management")}>
           Management
         </button>
